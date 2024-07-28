@@ -1,0 +1,381 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// Define enums
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  PROJECT_MANAGER
+  ENGINEER
+  CLIENT
+}
+
+enum MaritalStatus {
+  MARRIED
+  SINGLE
+}
+
+enum GenderStatus {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum EmployeeType {
+  NotDef
+}
+
+enum Department {
+  NotDef
+}
+
+enum Designation {
+  NotDef
+}
+
+enum ProjectType {
+  CIVIL
+  MARIN
+  ENGINEERING
+}
+
+enum ProductType {
+  CIVIL
+  MARIN
+  ENGINEERING
+}
+
+enum ProjectCategory {
+  CIVIL
+  MARIN
+  ENGINEERING
+}
+
+enum EquipmentStatus {
+  WORKING
+  STAND_BY
+  BREAK_DOWN
+}
+
+enum RequisitionStatus {
+  ACCEPTED
+  DECLINED
+}
+
+enum ApplicationStatus {
+  ACCEPTED
+  DECLINED
+}
+
+enum ApplicationType {
+  LEAVE
+  EMERGENCY_MONEY
+  EQUIPMENT_PROBLEM
+}
+
+// Define models
+model Users {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  firstName    String
+  lastName     String
+  email        String   @unique
+  password     String
+  profileImage String?
+  role         UserRole
+  isActive     Boolean
+  isDeleted    Boolean
+  createdAt    DateTime
+  updatedAt    DateTime
+
+  admins          Admins?
+  projectManagers ProjectManagers?
+  engineers       Engineers?
+  clients         Clients?
+}
+
+model Admins {
+  id                String        @id @default(auto()) @map("_id") @db.ObjectId
+  employeeId        String        @unique
+  userId            String        @unique @db.ObjectId
+  mobile            String
+  userName          String        @unique
+  dob               DateTime
+  maritalStatus     MaritalStatus
+  gender            GenderStatus
+  employeeType      EmployeeType
+  department        Department
+  designation       Designation
+  joiningDate       DateTime
+  officeLocation    String
+  nationality       String
+  street            String
+  city              String
+  state             String
+  zip               Int
+  appointmentLetter String?
+  salarySlips       String[]
+  relivingLetter    String?
+  experienceLetter  String?
+  createdProjects   String[]
+  isActive          Boolean
+  isDeleted         Boolean
+  createdAt         DateTime
+  updatedAt         DateTime
+
+  projects Projects[]
+  products Products[]
+  user     Users      @relation(fields: [userId], references: [id])
+}
+
+model ProjectManagers {
+  id                String        @id @default(auto()) @map("_id") @db.ObjectId
+  employeeId        String        @unique
+  userId            String        @unique @db.ObjectId
+  mobile            String
+  userName          String        @unique
+  dob               DateTime
+  maritalStatus     MaritalStatus
+  gender            GenderStatus
+  employeeType      EmployeeType
+  department        Department
+  designation       Designation
+  joiningDate       DateTime
+  officeLocation    String
+  nationality       String
+  street            String
+  city              String
+  state             String
+  zip               Int
+  appointmentLetter String?
+  salarySlips       String[]
+  relivingLetter    String?
+  experienceLetter  String?
+  assignProjects    String[]
+  isActive          Boolean
+  isDeleted         Boolean
+  createdAt         DateTime
+  updatedAt         DateTime
+
+  projects Projects[]
+  user     Users      @relation(fields: [userId], references: [id])
+}
+
+model Engineers {
+  id                String        @id @default(auto()) @map("_id") @db.ObjectId
+  employeeId        String        @unique
+  userId            String        @unique @db.ObjectId
+  mobile            String
+  userName          String        @unique
+  dob               DateTime
+  maritalStatus     MaritalStatus
+  gender            GenderStatus
+  employeeType      EmployeeType
+  department        Department
+  designation       Designation
+  joiningDate       DateTime
+  officeLocation    String
+  nationality       String
+  street            String
+  city              String
+  state             String
+  zip               Int
+  appointmentLetter String?
+  salarySlips       String[]
+  relivingLetter    String?
+  experienceLetter  String?
+  assignProjects    String[]
+  isActive          Boolean
+  isDeleted         Boolean
+  createdAt         DateTime
+  updatedAt         DateTime
+
+  projects ProjectsEngineers[]
+  user     Users               @relation(fields: [userId], references: [id])
+}
+
+model Clients {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @unique @db.ObjectId
+  productList String[]
+  street      String
+  city        String
+  state       String
+  zip         Int
+  documents   String[]
+  isActive    Boolean
+  isDeleted   Boolean
+  createdAt   DateTime
+  updatedAt   DateTime
+
+  projects Projects[]
+  user     Users      @relation(fields: [userId], references: [id])
+}
+
+model Projects {
+  id               String      @id @default(auto()) @map("_id") @db.ObjectId
+  projectName      String
+  department       Department
+  clientId         String      @db.ObjectId
+  createdBy        String      @db.ObjectId
+  projectManagerId String      @db.ObjectId
+  startDate        DateTime
+  estimatedEndDate DateTime
+  projectType      ProjectType
+  productType      ProductType
+  street           String
+  city             String
+  state            String
+  zip              Int
+  createdAt        DateTime
+  updatedAt        DateTime
+
+  projectGallery ProjectGallery[]
+  products       ProductsProjects[]
+  engineers      ProjectsEngineers[]
+  createdByInfo  Admins              @relation(fields: [createdBy], references: [id])
+  client         Clients             @relation(fields: [clientId], references: [id])
+  projectManager ProjectManagers     @relation(fields: [projectManagerId], references: [id])
+}
+
+model ProjectGallery {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  projectId String   @db.ObjectId
+  title     String
+  image     String
+  uploadBy  String
+  comments  String[]
+  createdAt DateTime
+  updatedAt DateTime
+
+  project Projects @relation(fields: [projectId], references: [id])
+}
+
+model Products {
+  id                     String          @id @default(auto()) @map("_id") @db.ObjectId
+  equipmentId            String          @unique
+  projectId              String          @db.ObjectId
+  equipmentName          String
+  equipmentImage         String
+  registrationNumber     String          @unique
+  category               ProjectCategory
+  status                 EquipmentStatus
+  productAddBy           String          @db.ObjectId
+  ownerName              String
+  ownerAddress           String
+  ownerNumber            String
+  charteredBy            String
+  charteredPersonPhone   String
+  charteredPersonAddress String
+  brandName              String
+  model                  String
+  dimensions             String[]
+  manufacturingYear      String
+  crewId                 String[]
+  createdAt              DateTime
+  updatedAt              DateTime
+
+  productAddByInfo Admins             @relation(fields: [productAddBy], references: [id])
+  projects         ProductsProjects[]
+  crews            Crews[]
+}
+
+model Crews {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  firstName String
+  lastName  String
+  phone     String   @unique
+  nid       String   @unique
+  productId String   @db.ObjectId
+  isActive  Boolean
+  isDeleted Boolean
+  createdAt DateTime
+  updatedAt DateTime
+
+  product Products @relation(fields: [productId], references: [id])
+}
+
+// inter table
+model ProductsProjects {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  productsId String   @db.ObjectId
+  projectsId String   @db.ObjectId
+  createdAt  DateTime
+  updatedAt  DateTime
+
+  products Products @relation(fields: [productsId], references: [id])
+  projects Projects @relation(fields: [projectsId], references: [id])
+}
+
+model ProjectsEngineers {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  engineerId String   @db.ObjectId
+  projectId  String   @db.ObjectId
+  createdAt  DateTime
+  updatedAt  DateTime
+
+  projects  Projects  @relation(fields: [projectId], references: [id])
+  engineers Engineers @relation(fields: [engineerId], references: [id])
+}
+
+// not related
+model Requisitions {
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  projectManagerId String
+  projectId        String
+  description      String
+  amount           Int
+  acceptedBy       String
+  declinedBy       String
+  declineReason    String
+  status           RequisitionStatus
+  documents        String[]
+  createdAt        DateTime
+  updatedAt        DateTime
+}
+
+model Applications {
+  id                String            @id @default(auto()) @map("_id") @db.ObjectId
+  applicationFromId String
+  projectId         String
+  subject           String
+  description       String
+  from              DateTime
+  to                DateTime
+  applicationType   ApplicationType
+  amount            Int
+  acceptedBy        String
+  declinedBy        String
+  declineReason     String
+  status            ApplicationStatus
+  documents         String[]
+  createdAt         DateTime
+  updatedAt         DateTime
+}
+
+model Payments {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  project     String
+  requestFrom String
+  description String
+  amount      Int
+  document    String
+  createdAt   DateTime
+  updatedAt   DateTime
+}
+
+model DailyReports {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  projectId       String
+  workDescription String
+  workingTime     DateTime
+  overTime        DateTime
+  specialNote     String
+  createdAt       DateTime
+  updatedAt       DateTime
+}
