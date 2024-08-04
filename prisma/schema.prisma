@@ -88,10 +88,10 @@ model Users {
   password     String
   profileImage String?
   role         UserRole
-  isActive     Boolean
-  isDeleted    Boolean
-  createdAt    DateTime
-  updatedAt    DateTime
+  isActive     Boolean? @default(true)
+  isDeleted    Boolean? @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   admins          Admins?
   projectManagers ProjectManagers?
@@ -118,15 +118,15 @@ model Admins {
   city              String
   state             String
   zip               Int
-  appointmentLetter String?
-  salarySlips       String[]
-  relivingLetter    String?
-  experienceLetter  String?
-  createdProjects   String[]
-  isActive          Boolean
-  isDeleted         Boolean
-  createdAt         DateTime
-  updatedAt         DateTime
+  appointmentLetter String?       @default("")
+  salarySlips       String[]      @default([])
+  relivingLetter    String?       @default("")
+  experienceLetter  String?       @default("")
+  createdProjects   String[]      @default([])
+  isActive          Boolean       @default(true)
+  isDeleted         Boolean       @default(false)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   projects Projects[]
   products Products[]
@@ -152,15 +152,15 @@ model ProjectManagers {
   city              String
   state             String
   zip               Int
-  appointmentLetter String?
-  salarySlips       String[]
-  relivingLetter    String?
-  experienceLetter  String?
-  assignProjects    String[]
-  isActive          Boolean
-  isDeleted         Boolean
-  createdAt         DateTime
-  updatedAt         DateTime
+  appointmentLetter String?       @default("")
+  salarySlips       String[]      @default([])
+  relivingLetter    String?       @default("")
+  experienceLetter  String?       @default("")
+  assignProjects    String[]      @default([])
+  isActive          Boolean       @default(true)
+  isDeleted         Boolean       @default(false)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   projects Projects[]
   user     Users      @relation(fields: [userId], references: [id])
@@ -185,15 +185,15 @@ model Engineers {
   city              String
   state             String
   zip               Int
-  appointmentLetter String?
-  salarySlips       String[]
-  relivingLetter    String?
-  experienceLetter  String?
-  assignProjects    String[]
-  isActive          Boolean
-  isDeleted         Boolean
-  createdAt         DateTime
-  updatedAt         DateTime
+  appointmentLetter String?       @default("")
+  salarySlips       String[]      @default([])
+  relivingLetter    String?       @default("")
+  experienceLetter  String?       @default("")
+  assignProjects    String[]      @default([])
+  isActive          Boolean       @default(true)
+  isDeleted         Boolean       @default(false)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   projects ProjectsEngineers[]
   user     Users               @relation(fields: [userId], references: [id])
@@ -202,16 +202,17 @@ model Engineers {
 model Clients {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   userId      String   @unique @db.ObjectId
-  productList String[]
+  mobile      String
+  productList String[] @default([])
   street      String
   city        String
   state       String
   zip         Int
-  documents   String[]
-  isActive    Boolean
-  isDeleted   Boolean
-  createdAt   DateTime
-  updatedAt   DateTime
+  documents   String[] @default([])
+  isActive    Boolean  @default(true)
+  isDeleted   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   projects Projects[]
   user     Users      @relation(fields: [userId], references: [id])

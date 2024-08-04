@@ -35,16 +35,16 @@ export class Rocket {
   /**
    * Initiate the application with routes and error handlers.
    * 
-   * - Load all API routes under '/api'
+   * - Load all API routes under '/smd/api/v1'
    * - Define home route
    * - Global error handler
    * - Handle 404 Not Found errors
    */
   initiate() {
     /**
-     * Load all API routes under '/api'.
+    * Load all API routes under '/smd/api/v1'.
      */
-    this.app.use('/api', AllRoutes);
+    this.app.use('/smd/api/v1', AllRoutes);
 
     /**
      * Home route.
