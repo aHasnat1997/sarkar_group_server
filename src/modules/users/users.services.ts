@@ -1,10 +1,10 @@
 import bcrypt from 'bcrypt';
 import config from '../../config';
 import prisma from '../../db';
-import { Admins, Engineers, ProjectManagers, Users } from '@prisma/client';
+import { Admins, Clients, Engineers, ProjectManagers, Users } from '@prisma/client';
 import { TTokenPayload } from '../../types/token.type';
 import { Token } from '../../utils/token';
-import { TEmployeeRegistration, TLogin } from '../../types/user.type';
+import { TClientRegistration, TEmployeeRegistration, TLogin } from '../../types/user.type';
 
 /**
  * Logs in a user by verifying their email and password.
@@ -128,6 +128,66 @@ async function employeeRegistration(payload: TEmployeeRegistration) {
 };
 
 /**
+ * Registers a new client by creating user records in the database.
+ * @param payload - Object containing the client's registration information.
+ * @returns An object containing the newly created user's information.
+ */
+async function clientRegistration(payload: TClientRegistration) {
+  // Hash the provided password with the specified number of salt rounds
+  const hashedPassword = await bcrypt.hash(payload.password, Number(config.BCRYPT_SALT_ROUNDS));
+
+  // Perform a database transaction to create user and client records
+  const result = await prisma.$transaction(async (tx) => {
+    // Create a user information object
+    const userInfo = {
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      email: payload.email,
+      password: hashedPassword,
+      profileImage: payload.profileImage,
+      role: payload.role,
+      createdAt: payload.createdAt,
+      updatedAt: payload.updatedAt
+    };
+
+    // Create a new user in the database
+    const user = await tx.users.create({
+      data: userInfo as Users
+    });
+
+    // Create additional client information
+    const restInfo = {
+      userId: user.id,
+      mobile: payload.mobile,
+      street: payload.street,
+      city: payload.city,
+      state: payload.state,
+      zip: payload.zip,
+      createdAt: payload.createdAt,
+      updatedAt: payload.updatedAt
+    }
+
+    // Create a new client in the database
+    const restData = tx.clients.create({
+      data: restInfo as unknown as Clients
+    });
+
+    // Return the newly created user information along with role-specific data
+    return {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      profileImage: user.profileImage,
+      role: user.role,
+      ...restData
+    }
+  });
+
+  // Return the result of the transaction
+  return result;
+}
+
+/**
  * Retrieves the profile of a user by their email address, including role-specific data.
  * @param email - The email address of the user.
  * @returns An object containing user data along with role-specific information.
@@ -186,5 +246,6 @@ async function profile(email: string) {
 export const UserService = {
   login,
   employeeRegistration,
+  clientRegistration,
   profile
 };

@@ -119,6 +119,30 @@ const engineersRegistration = handelAsyncReq(async (req: Request, res: Response)
 });
 
 /**
+ * Handles registration of a new client.
+ * @param req - Express request object
+ * @param res - Express response object
+ */
+const clientsRegistration = handelAsyncReq(async (req: Request, res: Response) => {
+  const timeStamp = new Date();
+  // Create an client information object with additional properties
+  const clientsInfo = {
+    ...req.body,
+    role: UserRole.CLIENT,
+    createdAt: timeStamp,
+    updatedAt: timeStamp
+  };
+
+  // Call the clientRegistration function from UserService with client information
+  const result = await UserService.clientRegistration(clientsInfo);
+  // Send a success response with the newly registered client data
+  successResponse(res, {
+    message: 'Client Registration Successful.',
+    data: result
+  }, HTTPStatusCode.Created);
+});
+
+/**
  * Handles the request to retrieve user profile information.
  * @param req - Express request object
  * @param res - Express response object
@@ -144,5 +168,6 @@ export const UserController = {
   adminRegistration,
   projectManagersRegistration,
   engineersRegistration,
+  clientsRegistration,
   userProfile
 };

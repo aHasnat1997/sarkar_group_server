@@ -62,6 +62,18 @@ UserRoutes.post(
 );
 
 /**
+ * Route to handle client registration.
+ * @route POST /registration/client
+ * @access Restricted to ADMIN and SUPER_ADMIN
+ * @middleware authGuard - Middleware to check if the user has ADMIN or SUPER_ADMIN role
+ */
+UserRoutes.post(
+  '/registration/client',
+  authGuard('ADMIN', 'SUPER_ADMIN'),
+  UserController.clientsRegistration
+);
+
+/**
  * Route to handle retrieving user profile information.
  * @route GET /profile
  * @access Restricted to ADMIN, SUPER_ADMIN, PROJECT_MANAGER, ENGINEER, CLIENT

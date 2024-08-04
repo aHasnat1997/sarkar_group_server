@@ -31,3 +31,20 @@ export type TEmployeeRegistration = {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+// client registration type
+export type TClientRegistration = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  profileImage?: string;
+  role: string;
+  mobile: string;
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
