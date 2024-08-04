@@ -118,6 +118,25 @@ const engineersRegistration = handelAsyncReq(async (req: Request, res: Response)
   }, HTTPStatusCode.Created);
 });
 
+/**
+ * Handles the request to retrieve user profile information.
+ * @param req - Express request object
+ * @param res - Express response object
+ */
+const userProfile = handelAsyncReq(async (req: Request, res: Response) => {
+  // Extract the user's email from the request object
+  const userEmail = req.user.email;
+
+  // Retrieve the user's profile information using the UserService
+  const result = await UserService.profile(userEmail);
+
+  // Send a success response with the retrieved profile information
+  successResponse(res, {
+    message: 'Profile info found successfully.',
+    data: result,
+  }, HTTPStatusCode.Found);
+});
+
 // Export the UserController object containing the handler functions
 export const UserController = {
   userLogin,
@@ -125,4 +144,5 @@ export const UserController = {
   adminRegistration,
   projectManagersRegistration,
   engineersRegistration,
+  userProfile
 };

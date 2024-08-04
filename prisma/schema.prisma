@@ -123,8 +123,6 @@ model Admins {
   relivingLetter    String?       @default("")
   experienceLetter  String?       @default("")
   createdProjects   String[]      @default([])
-  isActive          Boolean       @default(true)
-  isDeleted         Boolean       @default(false)
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
@@ -157,8 +155,6 @@ model ProjectManagers {
   relivingLetter    String?       @default("")
   experienceLetter  String?       @default("")
   assignProjects    String[]      @default([])
-  isActive          Boolean       @default(true)
-  isDeleted         Boolean       @default(false)
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
@@ -190,8 +186,6 @@ model Engineers {
   relivingLetter    String?       @default("")
   experienceLetter  String?       @default("")
   assignProjects    String[]      @default([])
-  isActive          Boolean       @default(true)
-  isDeleted         Boolean       @default(false)
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
@@ -209,8 +203,6 @@ model Clients {
   state       String
   zip         Int
   documents   String[] @default([])
-  isActive    Boolean  @default(true)
-  isDeleted   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

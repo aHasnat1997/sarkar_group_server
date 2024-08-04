@@ -4,11 +4,7 @@ import prisma from '../../db';
 import { Admins, Engineers, ProjectManagers, Users } from '@prisma/client';
 import { TTokenPayload } from '../../types/token.type';
 import { Token } from '../../utils/token';
-
-type TLogin = {
-  email: string,
-  password: string
-}
+import { TEmployeeRegistration, TLogin } from '../../types/user.type';
 
 /**
  * Logs in a user by verifying their email and password.
@@ -50,7 +46,7 @@ async function login(payload: TLogin) {
  * @param payload - Object containing the employee's registration information.
  * @returns An object containing the newly created user's information along with role-specific data.
  */
-async function employeeRegistration(payload: any) {
+async function employeeRegistration(payload: TEmployeeRegistration) {
   // Hash the provided password with the specified number of salt rounds
   const hashedPassword = await bcrypt.hash(payload.password, Number(config.BCRYPT_SALT_ROUNDS));
 
@@ -102,17 +98,17 @@ async function employeeRegistration(payload: any) {
     // Create role-specific record based on the user's role
     if (user.role === 'ADMIN') {
       restData = await tx.admins.create({
-        data: restInfo as Admins
+        data: restInfo as unknown as Admins
       });
     }
     else if (user.role === 'PROJECT_MANAGER') {
       restData = await tx.projectManagers.create({
-        data: restInfo as ProjectManagers
+        data: restInfo as unknown as ProjectManagers
       });
     }
     else if (user.role === 'ENGINEER') {
       restData = await tx.engineers.create({
-        data: restInfo as Engineers
+        data: restInfo as unknown as Engineers
       });
     }
 
@@ -131,8 +127,64 @@ async function employeeRegistration(payload: any) {
   return result;
 };
 
-// Export the UserService object containing the login and employeeRegistration functions
+/**
+ * Retrieves the profile of a user by their email address, including role-specific data.
+ * @param email - The email address of the user.
+ * @returns An object containing user data along with role-specific information.
+ * @throws Will throw an error if the user or role-specific data is not found.
+ */
+async function profile(email: string) {
+  // Find the user in the database by email, selecting specific fields
+  const userData = await prisma.users.findUniqueOrThrow({
+    where: { email },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      profileImage: true,
+      role: true,
+      isActive: true,
+      isDeleted: true
+    }
+  });
+
+  // Initialize an empty object to hold role-specific data
+  let restData = {};
+
+  // Fetch role-specific data based on the user's role
+  if (userData.role === 'ADMIN' || userData.role === 'SUPER_ADMIN') {
+    restData = await prisma.admins.findUniqueOrThrow({
+      where: { userId: userData.id }
+    });
+  }
+  else if (userData.role === 'PROJECT_MANAGER') {
+    restData = await prisma.projectManagers.findUniqueOrThrow({
+      where: { userId: userData.id }
+    });
+  }
+  else if (userData.role === 'ENGINEER') {
+    restData = await prisma.engineers.findUniqueOrThrow({
+      where: { userId: userData.id }
+    });
+  }
+  else if (userData.role === 'CLIENT') {
+    restData = await prisma.clients.findUniqueOrThrow({
+      where: { userId: userData.id }
+    });
+  }
+
+  // Return the combined user data and role-specific data
+  return {
+    ...userData,
+    ...restData
+  };
+};
+
+
+// Export the UserService object
 export const UserService = {
   login,
-  employeeRegistration
+  employeeRegistration,
+  profile
 };
