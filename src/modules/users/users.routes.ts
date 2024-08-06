@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { UserController } from "./users.controllers";
 import { authGuard } from "../../middlewares/authGuard";
+import validateRequest from "../../middlewares/validateRequest";
+import { UserValidation } from "./user.validation";
 
 // Create a new Express Router instance
 export const UserRoutes = Router();
@@ -12,6 +14,7 @@ export const UserRoutes = Router();
  */
 UserRoutes.post(
   '/login',
+  validateRequest(UserValidation.loginSchema),
   UserController.userLogin
 );
 
@@ -33,6 +36,7 @@ UserRoutes.post(
  */
 UserRoutes.post(
   '/registration/admin',
+  validateRequest(UserValidation.employeeSchema),
   authGuard('ADMIN', 'SUPER_ADMIN'),
   UserController.adminRegistration
 );
@@ -45,6 +49,7 @@ UserRoutes.post(
  */
 UserRoutes.post(
   '/registration/project-manager',
+  validateRequest(UserValidation.employeeSchema),
   authGuard('ADMIN', 'SUPER_ADMIN'),
   UserController.projectManagersRegistration
 );
@@ -57,6 +62,7 @@ UserRoutes.post(
  */
 UserRoutes.post(
   '/registration/engineer',
+  validateRequest(UserValidation.employeeSchema),
   authGuard('ADMIN', 'SUPER_ADMIN'),
   UserController.engineersRegistration
 );
@@ -69,6 +75,7 @@ UserRoutes.post(
  */
 UserRoutes.post(
   '/registration/client',
+  validateRequest(UserValidation.clientSchema),
   authGuard('ADMIN', 'SUPER_ADMIN'),
   UserController.clientsRegistration
 );
