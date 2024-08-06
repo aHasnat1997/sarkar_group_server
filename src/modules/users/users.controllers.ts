@@ -161,6 +161,50 @@ const userProfile = handelAsyncReq(async (req: Request, res: Response) => {
   }, HTTPStatusCode.Found);
 });
 
+/**
+ * Handles the request to update a user's active status in the database.
+ * @param req - Express request object
+ * @param res - Express response object
+ */
+const userActiveStatusUpdate = handelAsyncReq(async (req: Request, res: Response) => {
+  // Extract the userId from the request parameters
+  const userId = req.params.userId;
+
+  // Extract the isActive status from the request body
+  const userData = req.body.isActive;
+
+  // Update the user's active status using the UserService
+  const result = await UserService.activeStatusUpdate(userId, userData);
+
+  // Send a success response with the updated user data
+  successResponse(res, {
+    message: 'User active status updated successfully.',
+    data: result,
+  }, HTTPStatusCode.Ok);
+});
+
+/**
+ * Handles the request to soft delete a user in the database.
+ * @param req - Express request object
+ * @param res - Express response object
+ */
+const userSoftDeleted = handelAsyncReq(async (req: Request, res: Response) => {
+  // Extract the userId from the request parameters
+  const userId = req.params.userId;
+
+  // Extract the isDeleted status from the request body
+  const userData = req.body.isDeleted;
+
+  // Soft delete the user using the UserService
+  const result = await UserService.softDeleted(userId, userData);
+
+  // Send a success response with the updated user data
+  successResponse(res, {
+    message: 'User soft deleted successfully.',
+    data: result,
+  }, HTTPStatusCode.Ok);
+});
+
 // Export the UserController object containing the handler functions
 export const UserController = {
   userLogin,
@@ -169,5 +213,7 @@ export const UserController = {
   projectManagersRegistration,
   engineersRegistration,
   clientsRegistration,
-  userProfile
+  userProfile,
+  userActiveStatusUpdate,
+  userSoftDeleted
 };

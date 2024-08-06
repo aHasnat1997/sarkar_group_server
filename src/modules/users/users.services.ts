@@ -20,6 +20,10 @@ async function login(payload: TLogin) {
     }
   });
 
+  // Checking user current is active and deleted status
+  if (isUserExisted.isActive === false) throw new Error('User not active!');
+  if (isUserExisted.isDeleted === true) throw new Error('User Deleted!');
+
   // Compare the provided password with the stored hashed password
   const isPasswordMatch = await bcrypt.compare(payload.password, isUserExisted.password);
   if (!isPasswordMatch) throw new Error('Password incorrect.');
@@ -234,11 +238,94 @@ async function profile(email: string) {
     });
   }
 
-  // Return the combined user data and role-specific data
-  return {
+  const finalData = {
     ...userData,
-    ...restData
+    profileData: {
+      ...restData
+    }
+  }
+
+  // Return the combined user data and role-specific data
+  return finalData;
+};
+
+/**
+ * Updates the active status of a user in the database.
+ * @param id - The ID of the user.
+ * @param isActive - The new active status of the user.
+ * @returns - The updated user data.
+ * @throws - If the isActive parameter is null.
+ */
+async function activeStatusUpdate(id: string, isActive: boolean) {
+  // Check if the isActive parameter is null
+  if (isActive === null) {
+    throw new Error('Data is null!');
   };
+
+  // Update the user's active status in the database and select specific fields
+  const result = await prisma.users.update({
+    where: {
+      id
+    },
+    data: {
+      isActive
+    },
+    select: {
+      firstName: true,
+      lastName: true,
+      profileImage: true,
+      email: true,
+      isActive: true,
+      role: true,
+      admins: true,
+      clients: true,
+      engineers: true,
+      projectManagers: true,
+    }
+  });
+
+  // Return the updated user data
+  return result;
+};
+
+/**
+ * Soft deletes a user in the database by updating the isDeleted status.
+ * @param id - The ID of the user.
+ * @param isDeleted - The new deleted status of the user.
+ * @returns} - The updated user data.
+ * @throws - If the isDeleted parameter is null.
+ */
+async function softDeleted(id: string, isDeleted: boolean) {
+  // Check if the isDeleted parameter is null
+  if (isDeleted === null) {
+    throw new Error('Data is null!');
+  };
+
+  // Update the user's deleted status in the database and select specific fields
+  const result = await prisma.users.update({
+    where: {
+      id
+    },
+    data: {
+      isDeleted
+    },
+    select: {
+      firstName: true,
+      lastName: true,
+      profileImage: true,
+      email: true,
+      isActive: true,
+      isDeleted: true,
+      role: true,
+      admins: true,
+      clients: true,
+      engineers: true,
+      projectManagers: true,
+    }
+  });
+
+  // Return the updated user data
+  return result;
 };
 
 
@@ -247,5 +334,7 @@ export const UserService = {
   login,
   employeeRegistration,
   clientRegistration,
-  profile
+  profile,
+  activeStatusUpdate,
+  softDeleted
 };
