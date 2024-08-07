@@ -48,3 +48,15 @@ export type TClientRegistration = {
   createdAt?: Date,
   updatedAt?: Date,
 };
+
+// reset user password type
+export type TResetPassword = {
+  newPassword: string,
+  oldPassword: string
+};
+
+// set new password type
+export type TSetNewPassword = {
+  newPassword: string,
+  token: string
+};

@@ -14,7 +14,7 @@ const loginSchema = z.object({
 const employeeSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
-  email: z.string(),
+  email: z.string().email(),
   password: z.string(),
   profileImage: z.string().optional(),
   mobile: z.string(),
@@ -39,7 +39,7 @@ const employeeSchema = z.object({
 const clientSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
-  email: z.string(),
+  email: z.string().email(),
   password: z.string(),
   profileImage: z.string().optional(),
   mobile: z.string(),
@@ -64,6 +64,29 @@ const softDeletedSchema = z.object({
 });
 
 /**
+ * Schema for validating requests to user password reset.
+ */
+const resetPasswordSchema = z.object({
+  newPassword: z.string(),
+  oldPassword: z.string()
+});
+
+/**
+ * Schema for validating requests to user forget password.
+ */
+const forgetPasswordSchema = z.object({
+  email: z.string().email()
+});
+
+/**
+ * Schema for validating requests to user change password.
+ */
+const setNewPasswordSchema = z.object({
+  newPassword: z.string(),
+  token: z.string()
+});
+
+/**
  * Collection of validation schemas for user-related requests.
  */
 export const UserValidation = {
@@ -71,5 +94,8 @@ export const UserValidation = {
   employeeSchema,
   clientSchema,
   updateActiveSchema,
-  softDeletedSchema
+  softDeletedSchema,
+  resetPasswordSchema,
+  forgetPasswordSchema,
+  setNewPasswordSchema
 };

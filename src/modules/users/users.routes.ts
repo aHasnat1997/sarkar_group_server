@@ -92,6 +92,47 @@ UserRoutes.post(
 );
 
 /**
+ * Route to handle resetting the user's password.
+ * @route POST /password/reset
+ * @access Restricted to ADMIN, SUPER_ADMIN, PROJECT_MANAGER, ENGINEER, CLIENT
+ * @middleware validateRequest - Middleware to validate the request body against resetPasswordSchema
+ * @middleware authGuard - Middleware to check if the user has one of the specified roles
+ * @controller UserController.resetUserPassword - Controller function to reset password
+ */
+UserRoutes.post(
+  '/password/reset',
+  validateRequest(UserValidation.resetPasswordSchema),
+  authGuard('ADMIN', 'SUPER_ADMIN', 'PROJECT_MANAGER', 'ENGINEER', 'CLIENT'),
+  UserController.resetUserPassword
+);
+
+/**
+ * Route to handle forgetting the user's password.
+ * @route POST /password/forget
+ * @access Public
+ * @middleware validateRequest - Middleware to validate the request body against forgetPasswordSchema.
+ * @controller UserController.forgetUserPassword - Controller function for forgetting the user's password.
+ */
+UserRoutes.post(
+  '/password/forget',
+  validateRequest(UserValidation.forgetPasswordSchema),
+  UserController.forgetUserPassword
+);
+
+/**
+ * Route to handle setting a new password for the user.
+ * @route POST /password/set-new
+ * @access Public
+ * @middleware validateRequest - Middleware to validate the request body against setNewPasswordSchema.
+ * @controller UserController.setNewUserPassword - Controller function to set a new password for the user.
+ */
+UserRoutes.post(
+  '/password/set-new',
+  validateRequest(UserValidation.setNewPasswordSchema),
+  UserController.setNewUserPassword
+);
+
+/**
  * Route to handle retrieving user profile information.
  * @route GET /profile/me
  * @access Restricted to ADMIN, SUPER_ADMIN, PROJECT_MANAGER, ENGINEER, CLIENT

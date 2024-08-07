@@ -4,7 +4,9 @@ import prisma from '../../db';
 import { Admins, Clients, Engineers, ProjectManagers, Users } from '@prisma/client';
 import { TTokenPayload } from '../../types/token.type';
 import { Token } from '../../utils/token';
-import { TClientRegistration, TEmployeeRegistration, TLogin } from '../../types/user.type';
+import { TClientRegistration, TEmployeeRegistration, TLogin, TResetPassword, TSetNewPassword } from '../../types/user.type';
+import { sandMail } from '../../controllers/sendMail';
+import { forgetPasswordEmail } from '../../templates/forgetPasswordEmail.template';
 
 /**
  * Logs in a user by verifying their email and password.
@@ -43,7 +45,7 @@ async function login(payload: TLogin) {
 
   // Return the generated tokens
   return { accessToken, refreshToken };
-}
+};
 
 /**
  * Registers a new employee by creating user and role-specific records in the database.
@@ -189,7 +191,128 @@ async function clientRegistration(payload: TClientRegistration) {
 
   // Return the result of the transaction
   return result;
+};
+
+/**
+ * Resets the user's password.
+ * @param userData - The user data object containing the user's details.
+ * @param payload - The payload containing the old and new passwords.
+ * @returns The updated user information.
+ */
+async function resetPassword(userData: Users, payload: TResetPassword) {
+  // Compare the provided old password with the stored password hash
+  const isOldPasswordMatch = await bcrypt.compare(payload.oldPassword, userData.password);
+  // Throw an error if the old password does not match
+  if (!isOldPasswordMatch) throw new Error('Old password not matched.');
+
+  // Hash the new password with the configured salt rounds
+  const newHashPassword = await bcrypt.hash(payload.newPassword, Number(config.BCRYPT_SALT_ROUNDS));
+
+  // Update the user's password in the database and select specific fields to return
+  const result = await prisma.users.update({
+    where: {
+      id: userData.id
+    },
+    data: {
+      password: newHashPassword
+    },
+    select: {
+      firstName: true,
+      lastName: true,
+      email: true,
+      role: true,
+    }
+  });
+
+  // Return the result of the update operation
+  return result;
 }
+
+/**
+ * Handles forget password request.
+ * @param email - The email address of the user requesting password reset.
+ * @returns Null after sending the reset email.
+ */
+async function forgetPassword(email: string) {
+  // Find the user in the database by email
+  const isUserExisted = await prisma.users.findUniqueOrThrow({
+    where: { email }
+  });
+
+  // Throw an error if the user is not active
+  if (isUserExisted.isActive === false) throw new Error('User not active!');
+  // Throw an error if the user is deleted
+  if (isUserExisted.isDeleted === true) throw new Error('User Deleted!');
+
+  // Create a token payload with user details
+  const tokenPayload: TTokenPayload = {
+    firstName: isUserExisted.firstName,
+    lastName: isUserExisted.lastName,
+    email: isUserExisted.email,
+    profileImage: isUserExisted.profileImage!,
+    role: isUserExisted.role
+  }
+
+  // Generate a token for password reset
+  const forgetPasswordToken = Token.sign(tokenPayload, config.TOKEN.FORGOT_TOKEN_SECRET, config.TOKEN.FORGOT_TOKEN_EXPIRES_TIME);
+  // Create a reset link with the token
+  const resetLink = `${config.CLINT_URL}?status=200&success=true&forgetToken=${forgetPasswordToken}`;
+
+  // Send a forget password email with the reset link
+  await sandMail({
+    to: isUserExisted.email, // Send to the user's email
+    subject: 'Forget Password', // Set the email subject
+    html: forgetPasswordEmail(resetLink, isUserExisted.firstName) // Set the email content
+  });
+
+  return null; // Return null after sending the email
+}
+
+/**
+ * Sets a new password for the user.
+ * @param payload - The payload containing the token and new password.
+ * @returns The updated user information.
+ */
+async function setNewPassword(payload: TSetNewPassword) {
+  // Verify the provided token
+  const isTokenOk = Token.verify(payload.token, config.TOKEN.FORGOT_TOKEN_SECRET) as TTokenPayload;
+  // Throw an error if the token is invalid
+  if (!isTokenOk) throw new Error('Unauthorize to reset password.');
+
+  // Find the user in the database by email
+  const isUserExisted = await prisma.users.findFirstOrThrow({
+    where: {
+      email: isTokenOk.email,
+    }
+  });
+  // Throw an error if the user is not active
+  if (isUserExisted.isActive === false) throw new Error('User not active!');
+  // Throw an error if the user is deleted
+  if (isUserExisted.isDeleted === true) throw new Error('User Deleted!');
+
+  // Hash the new password with the configured salt rounds
+  const newHashPassword = await bcrypt.hash(payload.newPassword, Number(config.BCRYPT_SALT_ROUNDS));
+
+  // Update the user's password in the database and select specific fields to return
+  const result = await prisma.users.update({
+    where: {
+      email: isUserExisted.email
+    },
+    data: {
+      password: newHashPassword
+    },
+    select: {
+      firstName: true,
+      lastName: true,
+      email: true,
+      role: true
+    }
+  })
+
+  // Return the result of the update operation
+  return result;
+}
+
 
 /**
  * Retrieves the profile of a user by their email address, including role-specific data.
@@ -334,6 +457,9 @@ export const UserService = {
   login,
   employeeRegistration,
   clientRegistration,
+  resetPassword,
+  forgetPassword,
+  setNewPassword,
   profile,
   activeStatusUpdate,
   softDeleted

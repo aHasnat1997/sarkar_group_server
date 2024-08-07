@@ -143,6 +143,51 @@ const clientsRegistration = handelAsyncReq(async (req: Request, res: Response) =
 });
 
 /**
+ * Handles the request to reset the user's password.
+ * @param req - Express request object containing the user and body.
+ * @param res - Express response object to send the response.
+ * @returns {Promise<void>} - Sends a success response with the result of the password reset.
+ */
+const resetUserPassword = handelAsyncReq(async (req: Request, res: Response) => {
+  // Call the resetPassword service with user and body data
+  const result = await UserService.resetPassword(req.user, req.body);
+  successResponse(res, {
+    message: 'Password Reset Successful.', // Success message
+    data: result // Result data
+  }, HTTPStatusCode.Ok); // HTTP status code 200
+});
+
+/**
+ * Handles the request for forgetting the user's password.
+ * @param req - Express request object containing the body.
+ * @param res - Express response object to send the response.
+ * @returns {Promise<void>} - Sends a success response with the result of the forget password process.
+ */
+const forgetUserPassword = handelAsyncReq(async (req: Request, res: Response) => {
+  // Call the forgetPassword service with email from request body
+  const result = await UserService.forgetPassword(req.body.email);
+  successResponse(res, {
+    message: 'Check your email. You have only 5 minutes for reset your password.', // Success message
+    data: result // Result data
+  }, HTTPStatusCode.Ok); // HTTP status code 200
+});
+
+/**
+ * Handles the request to set a new password for the user.
+ * @param req - Express request object containing the body.
+ * @param res - Express response object to send the response.
+ */
+const setNewUserPassword = handelAsyncReq(async (req: Request, res: Response) => {
+  // Call the setNewPassword service with data from request body
+  const result = await UserService.setNewPassword(req.body);
+  successResponse(res, {
+    message: 'Password Reset Successful.', // Success message
+    data: result // Result data
+  }, HTTPStatusCode.Ok); // HTTP status code 200
+});
+
+
+/**
  * Handles the request to retrieve user profile information.
  * @param req - Express request object
  * @param res - Express response object
@@ -213,6 +258,9 @@ export const UserController = {
   projectManagersRegistration,
   engineersRegistration,
   clientsRegistration,
+  resetUserPassword,
+  forgetUserPassword,
+  setNewUserPassword,
   userProfile,
   userActiveStatusUpdate,
   userSoftDeleted
