@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { UserRoutes } from "../modules/users/users.routes";
+import { EmailTest } from "../views/tests/emailTemp";
 
 /**
  * Express Router instance containing all application routes.
@@ -22,6 +23,10 @@ type TModulesRouters = {
  * @type {TModulesRouters[]}
  */
 const moduleRoutes: TModulesRouters[] = [
+  {
+    path: '/test/emails',
+    router: EmailTest
+  },
   {
     path: '/user',
     router: UserRoutes

@@ -5,6 +5,8 @@ import { AllRoutes } from './routes';
 import { globalErrorHandler } from './error/globalErrorHandler';
 import { HTTPStatusCode } from './utils/httpCode';
 import config from './config';
+import ejs from "ejs";
+import path from 'path';
 
 /**
  * Class representing the Rocket server.
@@ -52,12 +54,11 @@ export class Rocket {
      * @param {Request} req - Express request object.
      * @param {Response} res - Express response object.
      */
-    this.app.get('/', (req: Request, res: Response) => {
-      res.status(200).send(`
-        <body style="background-color:black;">
-          <h1 style="color:white;">👷 Sarkar Group-SMD Server</h1>
-        </body>
-      `);
+    this.app.get('/', async (req: Request, res: Response) => {
+      const homeLayout = await ejs.renderFile(
+        path.join(__dirname, './views/home/index.ejs'),
+      );
+      res.status(200).send(homeLayout);
     });
 
     // Global error handler

@@ -6,7 +6,8 @@ import { TTokenPayload } from '../../types/token.type';
 import { Token } from '../../utils/token';
 import { TClientRegistration, TEmployeeRegistration, TLogin, TResetPassword, TSetNewPassword } from '../../types/user.type';
 import { sandMail } from '../../controllers/sendMail';
-import { forgetPasswordEmail } from '../../templates/forgetPasswordEmail.template';
+import path from 'path';
+import ejs from "ejs";
 
 /**
  * Logs in a user by verifying their email and password.
@@ -226,7 +227,7 @@ async function resetPassword(userData: Users, payload: TResetPassword) {
 
   // Return the result of the update operation
   return result;
-}
+};
 
 /**
  * Handles forget password request.
@@ -258,15 +259,21 @@ async function forgetPassword(email: string) {
   // Create a reset link with the token
   const resetLink = `${config.CLINT_URL}?status=200&success=true&forgetToken=${forgetPasswordToken}`;
 
+  // Render the email template using EJS
+  const emailHtml = await ejs.renderFile(
+    path.join(__dirname, '../../views/emails/forgetPassword.ejs'),
+    { firstName: isUserExisted.firstName, resetLink }
+  );
+
   // Send a forget password email with the reset link
   await sandMail({
     to: isUserExisted.email, // Send to the user's email
     subject: 'Forget Password', // Set the email subject
-    html: forgetPasswordEmail(resetLink, isUserExisted.firstName) // Set the email content
+    html: emailHtml // Set the email content
   });
 
   return null; // Return null after sending the email
-}
+};
 
 /**
  * Sets a new password for the user.
@@ -311,8 +318,7 @@ async function setNewPassword(payload: TSetNewPassword) {
 
   // Return the result of the update operation
   return result;
-}
-
+};
 
 /**
  * Retrieves the profile of a user by their email address, including role-specific data.
