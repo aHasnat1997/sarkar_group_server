@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { UserRoutes } from "../modules/users/users.routes";
 import { EmailTest } from "../views/tests/emailTemp";
+import { AdminRoutes } from "../modules/admins/admins.routes";
 
 /**
  * Express Router instance containing all application routes.
@@ -19,8 +20,6 @@ type TModulesRouters = {
 
 /**
  * Array containing configurations of all module routes.
- *
- * @type {TModulesRouters[]}
  */
 const moduleRoutes: TModulesRouters[] = [
   {
@@ -30,6 +29,10 @@ const moduleRoutes: TModulesRouters[] = [
   {
     path: '/user',
     router: UserRoutes
+  },
+  {
+    path: '/admin',
+    router: AdminRoutes
   }
 ];
 
