@@ -10,7 +10,7 @@ EmailTest.get('/forget-password', async (req: Request, res: Response) => {
   const firstName = 'John';
 
   const emailHtml = await ejs.renderFile(
-    path.join(__dirname, '../../views/emails/forgetPassword.ejs'),
+    path.join(__dirname, '../emails/forgetPassword.ejs'),
     { firstName, resetLink }
   );
 

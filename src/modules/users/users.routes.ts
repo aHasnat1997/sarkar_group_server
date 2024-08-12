@@ -153,7 +153,7 @@ UserRoutes.get(
  * @middleware authGuard - Middleware to check if the user has ADMIN or SUPER_ADMIN role
  * @controller UserController.userActiveStatusUpdate - Controller function to handle the update
  */
-UserRoutes.put(
+UserRoutes.patch(
   '/:userId/update/active/status',
   validateRequest(UserValidation.updateActiveSchema),
   authGuard('ADMIN', 'SUPER_ADMIN'),
