@@ -18,7 +18,10 @@ export const globalErrorHandler = (
 ): Response => {
   return res.status(HTTPStatusCode.BadRequest).json({
     success: false,
-    message: error.message || 'Error...',
-    error: error
+    message: 'Error...',
+    error: {
+      error: error,
+      message: error.message
+    }
   });
 };
