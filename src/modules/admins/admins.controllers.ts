@@ -10,13 +10,16 @@ import { AdminService } from "./admins.services";
  * @param res - Express response object
  */
 const getAllAdmin = handelAsyncReq(async (req: Request, res: Response) => {
+  // Extract the query from the request
+  const query = req.query;
   // Retrieve the user's profile information using the UserService
-  const result = await AdminService.allAdminData();
+  const result = await AdminService.allAdminData(query);
 
   // Send a success response with the retrieved profile information
   successResponse(res, {
     message: 'All admin found successfully.',
-    data: result,
+    mete: result.meta,
+    data: result.result,
   }, HTTPStatusCode.Found);
 });
 

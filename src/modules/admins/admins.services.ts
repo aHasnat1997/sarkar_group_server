@@ -1,36 +1,57 @@
 import prisma from "../../db"
 import { TAdminUpdate } from "../../types/admins.type";
+import PrismaQueryBuilder from "../../builder/PrismaQueryBuilder";
 
 /**
- * Retrieves all admin data including associated user information, products, and projects.
- * @returns - A promise that resolves to an array of all admin data.
+ * Retrieves a list of admin data based on the provided query parameters.
+ * @param query - An object containing query parameters to filter, sort, and paginate the results.
+ * @returns - A promise that resolves to an object containing the result set and metadata.
  */
-async function allAdminData() {
-  // Query the database to find all admin records
-  const result = await prisma.admins.findMany({
-    // Include related user data, selecting specific fields
-    include: {
-      user: {
-        // Select specific fields from the related user record
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          profileImage: true,
-          role: true,
-          isActive: true,
-          isDeleted: true
-        }
-      },
-      products: true,
-      projects: true
-    }
-  });
+async function allAdminData(query: Record<string, unknown>) {
+  // Create a new PrismaQueryBuilder instance to handle dynamic queries
+  const queryBuilder = new PrismaQueryBuilder(
+    {
+      findMany: (args) => prisma.admins.findMany(args), // Method to find many admin records
+      count: (args) => prisma.admins.count(args),       // Method to count admin records
+    },
+    query // Pass the query parameters to the query builder
+  );
 
-  // Return the retrieved admin data
-  return result;
-};
+  // Define searchable fields for full-text search
+  const searchTerm = ['user.firstName', 'user.lastName', 'mobile', 'userName'];
+
+  // Define the relations to include in the query result
+  const include = {
+    user: {
+      select: {
+        firstName: true,
+        lastName: true,
+        email: true,
+        profileImage: true,
+        role: true,
+        isActive: true,
+        isDeleted: true
+      }
+    },
+    products: true,
+    projects: true
+  };
+
+  // Build and execute the query dynamically using the query builder methods
+  const result = await queryBuilder
+    .search(searchTerm)         // Apply full-text search based on the specified search terms
+    .filter()                   // Apply filters based on the query parameters
+    .sort()                     // Apply sorting based on the query parameters
+    .paginate()                 // Apply pagination based on the query parameters
+    .includeRelations(include)  // Include specified relations in the result
+    .findMany();                // Execute the query to retrieve the data
+
+  // Retrieve metadata about the query such as total count
+  const meta = await queryBuilder.metaData();
+
+  // Return the result set and metadata
+  return { result, meta };
+}
 
 /**
  * Retrieves single admin data based on the admin's ID.
