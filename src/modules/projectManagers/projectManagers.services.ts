@@ -1,9 +1,9 @@
-import prisma from "../../db"
-import { TAdminUpdate } from "../../types/admins.type";
 import PrismaQueryBuilder from "../../builder/PrismaQueryBuilder";
+import prisma from "../../db";
+import { TProjectManagerUpdate } from "../../types/projectManagers.type";
 
 /**
- * Retrieves a list of admin data based on the provided query parameters.
+ * Retrieves a list of project manager data based on the provided query parameters.
  * @param query - An object containing query parameters to filter, sort, and paginate the results.
  * @returns - A promise that resolves to an object containing the result set and metadata.
  */
@@ -11,8 +11,8 @@ async function allData(query: Record<string, unknown>) {
   // Create a new PrismaQueryBuilder instance to handle dynamic queries
   const queryBuilder = new PrismaQueryBuilder(
     {
-      findMany: (args) => prisma.admins.findMany(args), // Method to find many admin records
-      count: (args) => prisma.admins.count(args),       // Method to count admin records
+      findMany: (args) => prisma.projectManagers.findMany(args), // Method to find many project manager records
+      count: (args) => prisma.projectManagers.count(args),       // Method to count project manager records
     },
     query // Pass the query parameters to the query builder
   );
@@ -33,7 +33,6 @@ async function allData(query: Record<string, unknown>) {
         isDeleted: true
       }
     },
-    products: true,
     projects: true
   };
 
@@ -54,14 +53,14 @@ async function allData(query: Record<string, unknown>) {
 }
 
 /**
- * Retrieves single admin data based on the admin's ID.
- * @param id - The ID of the admin to retrieve data for.
- * @returns - A promise that resolves to the admin data.
+ * Retrieves single project manager data based on the project manager's ID.
+ * @param id - The ID of the project manager to retrieve data for.
+ * @returns - A promise that resolves to the project manager data.
  */
 async function singleData(id: string) {
-  // Query the database to find the first admin record with the specified ID
-  const result = await prisma.admins.findFirstOrThrow({
-    // Specify the condition to find the admin by ID
+  // Query the database to find the first project manager record with the specified ID
+  const result = await prisma.projectManagers.findFirstOrThrow({
+    // Specify the condition to find the project manager by ID
     where: { id },
     // Include related user data and related projects and products
     include: {
@@ -78,26 +77,25 @@ async function singleData(id: string) {
           isDeleted: true
         }
       },
-      products: true,
-      projects: true
+      projects: true,
     }
   });
 
-  // Return the retrieved admin data
+  // Return the retrieved project manager data
   return result;
 };
 
 /**
- * Updates admin data including associated user information.
+ * Updates project manager data including associated user information.
  * @param id - The ID of the user to update.
- * @param payload - The data to update the user and admin records with.
- * @returns - A promise that resolves to the updated admin data.
+ * @param payload - The data to update the user and project manager records with.
+ * @returns - A promise that resolves to the updated project manager data.
  */
-async function updateData(id: string, payload: TAdminUpdate) {
-  // Destructure the payload to separate user data from admin data
-  const { user, ...adminData } = payload;
+async function updateData(id: string, payload: TProjectManagerUpdate) {
+  // Destructure the payload to separate user data from project manager data
+  const { user, ...projectManagerData } = payload;
 
-  // Start a database transaction to update the user and admin records
+  // Start a database transaction to update the user and project manager records
   const result = await prisma.$transaction(async (tx) => {
     // Update the user record with the specified ID, ensuring the user is active and not deleted
     const userUpdate = await tx.users.update({
@@ -120,29 +118,29 @@ async function updateData(id: string, payload: TAdminUpdate) {
       }
     });
 
-    // Update the admin record associated with the updated user's ID
-    const admin = await tx.admins.update({
-      // Specify the condition to find the admin by the user's ID
+    // Update the project manager record associated with the updated user's ID
+    const projectManager = await tx.projectManagers.update({
+      // Specify the condition to find the project manager by the user's ID
       where: {
         userId: userUpdate.id
       },
-      // Specify the data to update the admin with
-      data: adminData
+      // Specify the data to update the projectManager with
+      data: projectManagerData
     });
 
-    // Return the updated user data along with the updated admin data
+    // Return the updated user data along with the updated projectManager data
     return {
       ...userUpdate,
-      otherInfo: admin
+      otherInfo: projectManager
     };
   });
 
-  // Return the result of the transaction, which includes updated user and admin data
+  // Return the result of the transaction, which includes updated user and project manager data
   return result;
 };
 
 // Export the service functions to be used in other parts of the application
-export const AdminService = {
+export const ProjectManagerService = {
   allData,
   singleData,
   updateData

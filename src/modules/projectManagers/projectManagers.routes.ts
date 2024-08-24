@@ -1,49 +1,49 @@
 import { Router } from "express";
 import { authGuard } from "../../middlewares/authGuard";
-import { AdminController } from "./admins.controllers";
 import validateRequest from "../../middlewares/validateRequest";
-import { AdminValidation } from "./admins.validation";
+import { ProjectManagerValidation } from "./projectManagers.validation";
+import { ProjectManagerController } from "./projectManagers.controllers";
 
 // Create a new Express Router instance
-export const AdminRoutes = Router();
+export const ProjectManagerRoutes = Router();
 
 /**
- * Route to get all admin data.
+ * Route to get all project manager data.
  * @route GET /all
  * @access Restricted to SUPER_ADMIN and ADMIN roles.
  * @middleware authGuard - Middleware to check if the user has SUPER_ADMIN or ADMIN role.
  * @returns {void}
  */
-AdminRoutes.get(
+ProjectManagerRoutes.get(
   '/all',
   authGuard('SUPER_ADMIN', 'ADMIN'),
-  AdminController.getAll
+  ProjectManagerController.getAll
 );
 
 /**
- * Route to get single admin data.
+ * Route to get single project manager data.
  * @route GET /:id
  * @access Restricted to SUPER_ADMIN and ADMIN roles.
  * @middleware authGuard - Middleware to check if the user has SUPER_ADMIN or ADMIN role.
  * @returns {void}
  */
-AdminRoutes.get(
+ProjectManagerRoutes.get(
   '/:id',
   authGuard('SUPER_ADMIN', 'ADMIN'),
-  AdminController.getSingle
+  ProjectManagerController.getSingle
 );
 
 /**
- * Route to update admin data.
+ * Route to update project manager data.
  * @route PATCH /:userId/update
  * @access Restricted to SUPER_ADMIN and ADMIN roles.
  * @middleware validateRequest - Middleware to validate the request body using the adminUpdateSchema.
  * @middleware authGuard - Middleware to check if the user has SUPER_ADMIN or ADMIN role.
  * @returns {void}
  */
-AdminRoutes.patch(
+ProjectManagerRoutes.patch(
   '/:userId/update',
-  validateRequest(AdminValidation.adminUpdateSchema),
+  validateRequest(ProjectManagerValidation.projectManagerSchema),
   authGuard('SUPER_ADMIN', 'ADMIN'),
-  AdminController.updateSingle
+  ProjectManagerController.updateSingle
 );

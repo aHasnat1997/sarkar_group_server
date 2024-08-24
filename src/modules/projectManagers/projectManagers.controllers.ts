@@ -2,10 +2,10 @@ import { Request, Response } from "express";
 import handelAsyncReq from "../../utils/handelAsyncReq";
 import successResponse from "../../utils/successResponse";
 import { HTTPStatusCode } from "../../utils/httpCode";
-import { AdminService } from "./admins.services";
+import { ProjectManagerService } from "./projectManagers.services";
 
 /**
- * Handles the request to retrieve all admin information.
+ * Handles the request to retrieve all project manager information.
  * @param req - Express request object
  * @param res - Express response object
  */
@@ -13,37 +13,37 @@ const getAll = handelAsyncReq(async (req: Request, res: Response) => {
   // Extract the query from the request
   const query = req.query;
   // Retrieve the user's profile information using the UserService
-  const result = await AdminService.allData(query);
+  const result = await ProjectManagerService.allData(query);
 
   // Send a success response with the retrieved profile information
   successResponse(res, {
-    message: 'All admin found successfully.',
+    message: 'All project manager found successfully.',
     mete: result.meta,
     data: result.result,
   }, HTTPStatusCode.Found);
 });
 
 /**
- * Handles the request to retrieve single admin information.
+ * Handles the request to retrieve single project manager information.
  * @param req - Express request object
  * @param res - Express response object
  */
 const getSingle = handelAsyncReq(async (req: Request, res: Response) => {
-  // Extract the admin ID from the request parameters
+  // Extract the project manager ID from the request parameters
   const id = req.params.id;
 
   // Retrieve the user's profile information using the UserService
-  const result = await AdminService.singleData(id as string);
+  const result = await ProjectManagerService.singleData(id as string);
 
   // Send a success response with the retrieved profile information
   successResponse(res, {
-    message: 'Admin info found successfully.',
+    message: 'Project-Manager info found successfully.',
     data: result,
   }, HTTPStatusCode.Found);
 });
 
 /**
- * Handles the request to update admin information.
+ * Handles the request to update project manager information.
  * @param req - Express request object
  * @param res - Express response object
  */
@@ -55,17 +55,17 @@ const updateSingle = handelAsyncReq(async (req: Request, res: Response) => {
   const updateData = req.body;
 
   // Retrieve the user's profile information using the UserService
-  const result = await AdminService.updateData(id, updateData);
+  const result = await ProjectManagerService.updateData(id, updateData);
 
   // Send a success response with the retrieved profile information
   successResponse(res, {
-    message: 'Update admin info successfully.',
+    message: 'Update project manager info successfully.',
     data: result,
   }, HTTPStatusCode.Found);
 });
 
-// Export the AdminController with the defined methods
-export const AdminController = {
+// Export the project managerController with the defined methods
+export const ProjectManagerController = {
   getAll,
   getSingle,
   updateSingle
