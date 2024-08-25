@@ -5,7 +5,7 @@ import ejs from "ejs";
 
 export const EmailTest = Router();
 
-EmailTest.get('/forget-password', async (req: Request, res: Response) => {
+EmailTest.get('/emails/forget-password', async (req: Request, res: Response) => {
   const resetLink = `${config.CLINT_URL}?status=200&success=true&forgetToken=dummyToken`;
   const firstName = 'John';
 
