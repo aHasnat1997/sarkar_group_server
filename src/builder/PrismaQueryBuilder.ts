@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 // Define helper types for select and include
 type Select<T> = Partial<Record<keyof T, boolean>>; // Type for specifying fields to select
@@ -43,6 +43,7 @@ class PrismaQueryBuilder<
     this.query = query; // Initialize the query parameters with the provided query object
   }
 
+  // to-do: enum field not working
   /**
    * Adds search functionality to the query based on specified fields.
    * @param searchableFields - Array of fields to search.
@@ -74,6 +75,7 @@ class PrismaQueryBuilder<
     return this; // Return the current instance for method chaining
   }
 
+  // to-do: enum field not working
   /**
    * Adds filtering functionality to the query based on provided query parameters.
    * @returns - Returns the current instance for method chaining.

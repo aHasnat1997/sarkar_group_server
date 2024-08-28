@@ -277,15 +277,15 @@ model Products {
 }
 
 model Crews {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  firstName String
-  lastName  String
-  phone     String   @unique
-  nid       String   @unique
-  productId String   @db.ObjectId
-  isActive  Boolean
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName     String
+  profileImage String?
+  phone        String   @unique
+  nid          String   @unique
+  productId    String   @db.ObjectId
+  isActive     Boolean? @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   product Products @relation(fields: [productId], references: [id])
 }
