@@ -225,8 +225,8 @@ model Projects {
   city             String
   state            String
   zip              Int
-  createdAt        DateTime
-  updatedAt        DateTime
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 
   projectGallery ProjectGallery[]
   products       ProductsProjects[]
@@ -243,8 +243,8 @@ model ProjectGallery {
   image     String
   uploadBy  String
   comments  String[]
-  createdAt DateTime
-  updatedAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   project Projects @relation(fields: [projectId], references: [id])
 }
@@ -252,13 +252,12 @@ model ProjectGallery {
 model Products {
   id                     String          @id @default(auto()) @map("_id") @db.ObjectId
   equipmentId            String          @unique
-  projectId              String          @db.ObjectId
   equipmentName          String
-  equipmentImage         String
+  equipmentImage         String[]
   registrationNumber     String          @unique
   category               ProjectCategory
   status                 EquipmentStatus
-  productAddBy           String          @db.ObjectId
+  createdAdminId         String          @db.ObjectId
   ownerName              String
   ownerAddress           String
   ownerNumber            String
@@ -267,13 +266,12 @@ model Products {
   charteredPersonAddress String
   brandName              String
   model                  String
-  dimensions             String[]
+  dimensions             String
   manufacturingYear      String
-  crewId                 String[]
-  createdAt              DateTime
-  updatedAt              DateTime
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
 
-  productAddByInfo Admins             @relation(fields: [productAddBy], references: [id])
+  createdAdminInfo Admins             @relation(fields: [createdAdminId], references: [id])
   projects         ProductsProjects[]
   crews            Crews[]
 }
@@ -286,9 +284,8 @@ model Crews {
   nid       String   @unique
   productId String   @db.ObjectId
   isActive  Boolean
-  isDeleted Boolean
-  createdAt DateTime
-  updatedAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   product Products @relation(fields: [productId], references: [id])
 }
@@ -298,8 +295,8 @@ model ProductsProjects {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   productsId String   @db.ObjectId
   projectsId String   @db.ObjectId
-  createdAt  DateTime
-  updatedAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   products Products @relation(fields: [productsId], references: [id])
   projects Projects @relation(fields: [projectsId], references: [id])
@@ -309,8 +306,8 @@ model ProjectsEngineers {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   engineerId String   @db.ObjectId
   projectId  String   @db.ObjectId
-  createdAt  DateTime
-  updatedAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   projects  Projects  @relation(fields: [projectId], references: [id])
   engineers Engineers @relation(fields: [engineerId], references: [id])
@@ -328,8 +325,8 @@ model Requisitions {
   declineReason    String
   status           RequisitionStatus
   documents        String[]
-  createdAt        DateTime
-  updatedAt        DateTime
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 }
 
 model Applications {
@@ -347,8 +344,8 @@ model Applications {
   declineReason     String
   status            ApplicationStatus
   documents         String[]
-  createdAt         DateTime
-  updatedAt         DateTime
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 }
 
 model Payments {
@@ -358,8 +355,8 @@ model Payments {
   description String
   amount      Int
   document    String
-  createdAt   DateTime
-  updatedAt   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model DailyReports {
@@ -369,6 +366,6 @@ model DailyReports {
   workingTime     DateTime
   overTime        DateTime
   specialNote     String
-  createdAt       DateTime
-  updatedAt       DateTime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

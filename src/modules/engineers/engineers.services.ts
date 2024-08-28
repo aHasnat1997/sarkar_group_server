@@ -50,7 +50,7 @@ async function allData(query: Record<string, unknown>) {
 
   // Return the result set and metadata
   return { result, meta };
-}
+};
 
 /**
  * Retrieves single engineers data based on the engineers's ID.

@@ -5,6 +5,7 @@ import { AdminRoutes } from "../modules/admins/admins.routes";
 import { ProjectManagerRoutes } from "../modules/projectManagers/projectManagers.routes";
 import { EngineerRoutes } from "../modules/engineers/engineers.routes";
 import { ClientRoutes } from "../modules/clients/clients.routes";
+import { ProductRoutes } from "../modules/products/products.routes";
 
 /**
  * Express Router instance containing all application routes.
@@ -48,6 +49,10 @@ const moduleRoutes: TModulesRouters[] = [
   {
     path: '/client',
     router: ClientRoutes
+  },
+  {
+    path: '/product',
+    router: ProductRoutes
   }
 ];
 

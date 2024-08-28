@@ -34,6 +34,12 @@ export const authGuard = (...accessTo: UserRole[]): RequestHandler =>
           email: userTokenDecode.email,
           isActive: true,
           isDeleted: false
+        },
+        include: {
+          admins: true,
+          projectManagers: true,
+          engineers: true,
+          clients: true
         }
       });
 
