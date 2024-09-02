@@ -28,21 +28,113 @@ enum GenderStatus {
 }
 
 enum EmployeeType {
-  NotDef
+  FULL_TIME
+  PART_TIME
+  INTERN
+  TEMPORARY
+  CONTRACTOR
+  FREELANCER
+  CONSULTANT
+  REMOTE
+  ON_SITE
+  SHIFT_WORKER
+  SEASONAL
+  CASUAL
+  VOLUNTEER
+  APPRENTICE
+  TRAINEE
 }
 
 enum Department {
-  NotDef
+  CIVIL
+  MARIN
+  ENGINEERING
 }
 
 enum Designation {
-  NotDef
+  CEO
+  COO
+  CFO
+  CTO
+  CMO
+  CHRO
+  CIO
+  CPO
+  CLO
+  VICE_PRESIDENT_OPERATIONS
+  VICE_PRESIDENT_SALES
+  VICE_PRESIDENT_ENGINEERING
+  VICE_PRESIDENT_MARKETING
+  VICE_PRESIDENT_PRODUCT_MANAGEMENT
+  VICE_PRESIDENT_HUMAN_RESOURCES
+  VICE_PRESIDENT_FINANCE
+  VICE_PRESIDENT_SUPPLY_CHAIN
+  DIRECTOR_OPERATIONS
+  DIRECTOR_ENGINEERING
+  DIRECTOR_SALES
+  DIRECTOR_MARKETING
+  DIRECTOR_PRODUCT_DEVELOPMENT
+  DIRECTOR_FINANCE
+  DIRECTOR_HUMAN_RESOURCES
+  DIRECTOR_CUSTOMER_SERVICE
+  ENGINEERING_MANAGER
+  PRODUCT_MANAGER
+  SALES_MANAGER
+  MARKETING_MANAGER
+  OPERATIONS_MANAGER
+  FINANCE_MANAGER
+  HUMAN_RESOURCES_MANAGER
+  IT_MANAGER
+  QUALITY_ASSURANCE_MANAGER
+  SUPPLY_CHAIN_MANAGER
+  LEAD_SOFTWARE_ENGINEER
+  SENIOR_DATA_SCIENTIST
+  PRINCIPAL_ARCHITECT
+  UX_UI_DESIGN_LEAD
+  DEVOPS_ENGINEER
+  SENIOR_PROJECT_MANAGER
+  LEGAL_COUNSEL
+  COMPLIANCE_OFFICER
+  DATA_PROTECTION_OFFICER
+  TALENT_ACQUISITION_MANAGER
+  CORPORATE_COMMUNICATIONS_MANAGER
+  SOFTWARE_ENGINEER
+  DATA_ANALYST
+  SALES_EXECUTIVE
+  MARKETING_SPECIALIST
+  HR_SPECIALIST
+  ACCOUNTANT
+  CUSTOMER_SUPPORT_REPRESENTATIVE
+  SUPPLY_CHAIN_COORDINATOR
+  ADMINISTRATIVE_ASSISTANT
+  TECHNICAL_WRITER
+  JUNIOR_SOFTWARE_DEVELOPER
+  MARKETING_ASSOCIATE
+  SALES_ASSOCIATE
+  HR_ASSISTANT
+  FINANCIAL_ANALYST
+  CUSTOMER_SUPPORT_AGENT
+  OPERATIONS_ANALYST
+  IT_SUPPORT_TECHNICIAN
+  PROJECT_COORDINATOR
 }
 
 enum ProjectType {
   CIVIL
   MARIN
   ENGINEERING
+}
+
+enum ProjectStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+  DELAYED
+  UNDER_REVIEW
+  APPROVED
+  ARCHIVED
 }
 
 enum ProductType {
@@ -61,22 +153,59 @@ enum EquipmentStatus {
   WORKING
   STAND_BY
   BREAK_DOWN
+  UNDER_MAINTENANCE
+  OUT_OF_SERVICE
+  IN_REPAIR
+  DECOMMISSIONED
+  PENDING_INSPECTION
+  AVAILABLE
+  RESERVED
+  LOST
+  DAMAGED
 }
 
 enum RequisitionStatus {
-  ACCEPTED
-  DECLINED
+  PENDING
+  APPROVED
+  REJECTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+  ON_HOLD
+  UNDER_REVIEW
+  PARTIALLY_FILLED
+  ARCHIVED
 }
 
 enum ApplicationStatus {
   ACCEPTED
-  DECLINED
+  RECEIVED
+  UNDER_REVIEW
+  INTERVIEW_SCHEDULED
+  OFFER_EXTENDED
+  OFFER_ACCEPTED
+  OFFER_DECLINED
+  HIRED
+  REJECTED
+  WITHDRAWN
+  ON_HOLD
+  COMPLETED
 }
 
 enum ApplicationType {
   LEAVE
   EMERGENCY_MONEY
   EQUIPMENT_PROBLEM
+  JOB_APPLICATION
+  INTERNSHIP_APPLICATION
+  VOLUNTEER_APPLICATION
+  SCHOLARSHIP_APPLICATION
+  GRANT_APPLICATION
+  MEMBERSHIP_APPLICATION
+  LOAN_APPLICATION
+  PARTNERSHIP_APPLICATION
+  CUSTOMER_FEEDBACK
+  SERVICE_REQUEST
 }
 
 // Define models
@@ -211,22 +340,23 @@ model Clients {
 }
 
 model Projects {
-  id               String      @id @default(auto()) @map("_id") @db.ObjectId
+  id               String        @id @default(auto()) @map("_id") @db.ObjectId
   projectName      String
   department       Department
-  clientId         String      @db.ObjectId
-  createdBy        String      @db.ObjectId
-  projectManagerId String      @db.ObjectId
+  clientId         String        @db.ObjectId
+  createdBy        String        @db.ObjectId
+  projectManagerId String        @db.ObjectId
   startDate        DateTime
   estimatedEndDate DateTime
   projectType      ProjectType
   productType      ProductType
+  status           ProjectStatus
   street           String
   city             String
   state            String
   zip              Int
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
   projectGallery ProjectGallery[]
   products       ProductsProjects[]
@@ -292,14 +422,14 @@ model Crews {
 
 // inter table
 model ProductsProjects {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  productsId String   @db.ObjectId
-  projectsId String   @db.ObjectId
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId String   @db.ObjectId
+  projectId String   @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  products Products @relation(fields: [productsId], references: [id])
-  projects Projects @relation(fields: [projectsId], references: [id])
+  products Products @relation(fields: [productId], references: [id])
+  projects Projects @relation(fields: [projectId], references: [id])
 }
 
 model ProjectsEngineers {

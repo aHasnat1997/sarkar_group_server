@@ -1,7 +1,20 @@
 import { z } from "zod";
 
 const ProjectCategory = z.enum(['CIVIL', 'MARIN', 'ENGINEERING']);
-const EquipmentStatus = z.enum(['WORKING', 'STAND_BY', 'BREAK_DOWN']);
+const EquipmentStatus = z.enum([
+  'WORKING',
+  'STAND_BY',
+  'BREAK_DOWN',
+  'UNDER_MAINTENANCE',
+  'OUT_OF_SERVICE',
+  'IN_REPAIR',
+  'DECOMMISSIONED',
+  'PENDING_INSPECTION',
+  'AVAILABLE',
+  'RESERVED',
+  'LOST',
+  'DAMAGED'
+]);
 
 const productSchema = z.object({
   equipmentName: z.string(),
