@@ -39,7 +39,7 @@ const getAll = handelAsyncReq(async (req: Request, res: Response) => {
   successResponse(res, {
     message: 'All project found successfully.',
     mete: result.meta,
-    data: result.result,
+    data: result.data,
   }, HTTPStatusCode.Found);
 });
 
@@ -93,16 +93,22 @@ const addEngineer = handelAsyncReq(async (req: Request, res: Response) => {
   // Extract the project ID from the request parameters
   const projectId = req.params.id;
 
+  // Extract the engineer id's from the request body
   const engineerIds = req.body?.engineerIds as string[];
 
-  const result = engineerIds.map(async (engineerId) => {
-    return await ProjectService.addEngineer(projectId, engineerId);
-  });
+  // Adds multiple engineers to a project.
+  const result = await Promise.all(
+    // Map over each engineerId and call the addEngineer function asynchronously
+    engineerIds.map(async (engineerId) => {
+      // Call the addEngineer function from ProjectService for each engineer and project
+      return await ProjectService.addEngineer(projectId, engineerId);
+    })
+  );
 
   // Send a success response with the added engineer information in project.
   successResponse(res, {
     message: 'Engineer added successfully.',
-    data: result[result.length - 1],
+    data: result,
   }, HTTPStatusCode.Ok);
 });
 
@@ -115,8 +121,10 @@ const removeEngineer = handelAsyncReq(async (req: Request, res: Response) => {
   // Extract the project ID from the request parameters
   const projectId = req.params.id;
 
+  // Extract the engineer id from the request body
   const engineerId = req.body?.engineerId;
 
+  // Remove engineer from project
   const result = await ProjectService.removeEngineer(projectId, engineerId);
 
   // Send a success response with the remove engineer from project.
@@ -135,16 +143,22 @@ const addProduct = handelAsyncReq(async (req: Request, res: Response) => {
   // Extract the project ID from the request parameters
   const projectId = req.params.id;
 
+  // Extract the product id's from the request body
   const productIds = req.body?.productIds as string[];
 
-  const result = productIds.map(async (productId) => {
-    return await ProjectService.addProduct(projectId, productId);
-  });
+  // Adds multiple products to a project.
+  const result = await Promise.all(
+    // Map over each productId and call the addProduct function asynchronously
+    productIds.map(async (productId) => {
+      // Call the addProduct function from ProjectService for each product and project
+      return await ProjectService.addProduct(projectId, productId);
+    })
+  );
 
   // Send a success response with the added product information in project.
   successResponse(res, {
     message: 'Product added successfully.',
-    data: result[result.length - 1],
+    data: result,
   }, HTTPStatusCode.Ok);
 });
 
@@ -157,8 +171,10 @@ const removeProduct = handelAsyncReq(async (req: Request, res: Response) => {
   // Extract the project ID from the request parameters
   const projectId = req.params.id;
 
+  // Extract the product id from the request body
   const productId = req.body?.productId;
 
+  // Remove product from project
   const result = await ProjectService.removeProduct(projectId, productId);
 
   // Send a success response with the remove product from project.

@@ -1,6 +1,7 @@
 import prisma from "../../db";
 import PrismaQueryBuilder from "../../builder/PrismaQueryBuilder";
 import { Projects } from "@prisma/client";
+import { TProjectDetails } from "../../types/project.type";
 
 /**
  * Creates a new project record in the database.
@@ -65,8 +66,22 @@ async function allInfo(query: Record<string, unknown>) {
         }
       }
     },
+    client: {
+      select: {
+        id: true,
+        mobile: true,
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+            profileImage: true
+          }
+        }
+      }
+    },
     engineers: {
-      include: {
+      select: {
         engineers: {
           select: {
             id: true,
@@ -88,14 +103,14 @@ async function allInfo(query: Record<string, unknown>) {
       }
     },
     products: {
-      include: {
+      select: {
         products: true
       }
     }
   }
 
   // Build and execute the query dynamically using the query builder methods
-  const result = await queryBuilder
+  const result: TProjectDetails[] = await queryBuilder
     .search(searchTerm)         // Apply full-text search based on the specified search terms
     .filter()                   // Apply filters based on the query parameters
     .sort()                     // Apply sorting based on the query parameters
@@ -106,8 +121,16 @@ async function allInfo(query: Record<string, unknown>) {
   // Retrieve metadata about the query such as total count
   const meta = await queryBuilder.metaData();
 
+  const data = result.map(items => {
+    return {
+      ...items,
+      engineers: items.engineers.map(e => e.engineers),
+      products: items.products.map(e => e.products)
+    };
+  });
+
   // Return the result set and metadata
-  return { result, meta };
+  return { data, meta };
 };
 
 /**
@@ -138,8 +161,22 @@ async function singleInfo(projectId: string) {
           }
         }
       },
+      client: {
+        select: {
+          id: true,
+          mobile: true,
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+              email: true,
+              profileImage: true
+            }
+          }
+        }
+      },
       engineers: {
-        include: {
+        select: {
           engineers: {
             select: {
               id: true,
@@ -161,7 +198,7 @@ async function singleInfo(projectId: string) {
         }
       },
       products: {
-        include: {
+        select: {
           products: true
         }
       }
@@ -169,7 +206,11 @@ async function singleInfo(projectId: string) {
   });
 
   // Return the found project record
-  return result;
+  return {
+    ...result,
+    engineers: result.engineers.map(e => e.engineers),
+    products: result.products.map(p => p.products)
+  };
 };
 
 /**
@@ -179,11 +220,13 @@ async function singleInfo(projectId: string) {
  * @returns The updated project record.
  */
 async function updateInfo(projectId: string, payload: Partial<Projects>) {
+  // Find the project by its ID and ensure it exists
   const isProjectFinish = await prisma.projects.findUniqueOrThrow({
     where: {
       id: projectId
     }
   });
+  // Throw an error if the project is completed
   if (isProjectFinish?.status === 'COMPLETED') throw new Error('Project is Completed. Nothing to Update.');
 
   // Update the project record by ID with the provided data
@@ -196,132 +239,182 @@ async function updateInfo(projectId: string, payload: Partial<Projects>) {
   return result;
 };
 
+/**
+ * Adds an engineer to a project.
+ * @param projectId - The ID of the project.
+ * @param engineerId - The ID of the engineer.
+ * @returns The newly created project-engineer relationship.
+ */
 async function addEngineer(projectId: string, engineerId: string) {
+  // Find the project by its ID and ensure it exists
   const isProjectFinish = await prisma.projects.findUniqueOrThrow({
     where: {
       id: projectId
     }
   });
-  if (isProjectFinish?.status === 'COMPLETED') throw new Error('Project is Completed. Nothing to Update.');
 
+  // Throw an error if the project is completed
+  if (isProjectFinish?.status === 'COMPLETED')
+    throw new Error('Project is Completed. Nothing to Update.');
+
+  // Find the engineer by their ID and check if they are active and not deleted
   const isEngineerIdValid = await prisma.engineers.findUnique({
     where: { id: engineerId },
     include: {
       user: {
         select: {
-          isActive: true,
-          isDeleted: true
+          isActive: true,  // Check if the engineer is active
+          isDeleted: true  // Check if the engineer is deleted
         }
       }
     }
   });
 
+  // Throw an error if the engineer is invalid (non-existent, inactive, or deleted)
   if (
     !isEngineerIdValid ||
     isEngineerIdValid.user.isActive === false ||
     isEngineerIdValid.user.isDeleted === true
   ) throw new Error('Engineer not valid.');
 
+  // Create a new record in the projectsEngineers table to link the engineer with the project
   const result = await prisma.projectsEngineers.create({
     data: {
-      engineerId: isEngineerIdValid.id,
-      projectId: isProjectFinish?.id
+      engineerId: isEngineerIdValid.id, // Set the engineer ID
+      projectId: isProjectFinish?.id    // Set the project ID
     },
     select: {
       engineers: {
         include: {
           user: {
             select: {
-              firstName: true,
-              lastName: true,
-              email: true,
-              profileImage: true
+              firstName: true,  // Include the engineer's first name
+              lastName: true,   // Include the engineer's last name
+              email: true,      // Include the engineer's email
+              profileImage: true // Include the engineer's profile image
             }
           }
         }
       },
-      projects: true
+      projects: true // Include the project details
     }
   });
 
-  return result;
+  return result; // Return the result of the operation
 };
 
+/**
+ * Removes an engineer from a project.
+ * @param projectId - The ID of the project.
+ * @param engineerId - The ID of the engineer.
+ * @returns The deleted project-engineer relationship.
+ */
 async function removeEngineer(projectId: string, engineerId: string) {
+  // Find the project by its ID and ensure it exists
   const isProjectFinish = await prisma.projects.findUniqueOrThrow({
     where: {
       id: projectId
     }
   });
-  if (isProjectFinish?.status === 'COMPLETED') throw new Error('Project is Completed. Nothing to Update.');
 
-  const deletedRelations = await prisma.projectsEngineers.findMany({
+  // Throw an error if the project is completed
+  if (isProjectFinish?.status === 'COMPLETED')
+    throw new Error('Project is Completed. Nothing to Update.');
+
+  // Find the relationship between the project and engineer
+  const deletedRelations = await prisma.projectsEngineers.findFirstOrThrow({
     where: {
       engineerId,
       projectId
     }
   });
 
-  deletedRelations.forEach(async (deletedRelation) => {
-    await prisma.projectsEngineers.delete({
-      where: {
-        id: deletedRelation.id
-      }
-    });
+  // Delete the relationship record from the projectsEngineers table
+  const result = await prisma.projectsEngineers.delete({
+    where: { id: deletedRelations.id }
   });
+
+  return result; // Return the result of the operation
 };
 
+/**
+ * Adds a product to a project.
+ * @param projectId - The ID of the project.
+ * @param productId - The ID of the product.
+ * @returns The newly created project-product relationship.
+ */
 async function addProduct(projectId: string, productId: string) {
+  // Find the project by its ID and ensure it exists
   const isProjectFinish = await prisma.projects.findUniqueOrThrow({
     where: {
       id: projectId
     }
   });
-  if (isProjectFinish?.status === 'COMPLETED') throw new Error('Project is Completed. Nothing to Update.');
 
+  // Throw an error if the project is completed
+  if (isProjectFinish?.status === 'COMPLETED')
+    throw new Error('Project is Completed. Nothing to Update.');
+
+  // Find the product by its ID and check if it is in standby status
   const isProductStandBy = await prisma.products.findUniqueOrThrow({
     where: {
       id: productId
     }
   });
-  if (isProductStandBy.status !== 'STAND_BY') throw new Error('Equipment is not stand by.');
 
+  // Throw an error if the product is not in standby status
+  if (isProductStandBy.status !== 'STAND_BY')
+    throw new Error('Equipment is not stand by.');
+
+  // Create a new record in the productsProjects table to link the product with the project
   const result = await prisma.productsProjects.create({
     data: {
-      projectId: isProjectFinish.id,
-      productId: isProductStandBy.id
+      projectId: isProjectFinish.id, // Set the project ID
+      productId: isProductStandBy.id // Set the product ID
     },
     select: {
-      products: true,
-      projects: true
+      products: true, // Include the product details
+      projects: true  // Include the project details
     }
   });
 
-  return result;
+  return result; // Return the result of the operation
 };
 
+/**
+ * Removes a product from a project.
+ * @param projectId - The ID of the project.
+ * @param productId - The ID of the product.
+ * @returns The deleted project-product relationship.
+ */
 async function removeProduct(projectId: string, productId: string) {
+  // Find the project by its ID and ensure it exists
   const isProjectFinish = await prisma.projects.findUniqueOrThrow({
     where: {
       id: projectId
     }
   });
-  if (isProjectFinish?.status === 'COMPLETED') throw new Error('Project is Completed. Nothing to Update.');
 
-  const deletedRelations = await prisma.productsProjects.findMany({
+  // Throw an error if the project is completed
+  if (isProjectFinish?.status === 'COMPLETED')
+    throw new Error('Project is Completed. Nothing to Update.');
+
+  // Find the relationship between the project and product
+  const deletedRelations = await prisma.productsProjects.findFirstOrThrow({
     where: {
       productId,
       projectId
     }
   });
 
-  deletedRelations.forEach(async (deletedRelation) => {
-    await prisma.productsProjects.delete({
-      where: {
-        id: deletedRelation.id
-      }
-    });
+  // Delete the relationship record from the productsProjects table
+  const result = await prisma.productsProjects.delete({
+    where: {
+      id: deletedRelations.id
+    }
   });
+
+  return result; // Return the result of the operation
 };
 
 // Export the Project Service object containing all the service methods

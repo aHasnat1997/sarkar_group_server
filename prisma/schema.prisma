@@ -143,7 +143,7 @@ enum ProductType {
   ENGINEERING
 }
 
-enum ProjectCategory {
+enum ProductCategory {
   CIVIL
   MARIN
   ENGINEERING
@@ -385,7 +385,7 @@ model Products {
   equipmentName          String
   equipmentImage         String[]
   registrationNumber     String          @unique
-  category               ProjectCategory
+  category               ProductCategory
   status                 EquipmentStatus
   createdAdminId         String          @db.ObjectId
   ownerName              String
@@ -430,6 +430,8 @@ model ProductsProjects {
 
   products Products @relation(fields: [productId], references: [id])
   projects Projects @relation(fields: [projectId], references: [id])
+
+  @@unique([productId, projectId])
 }
 
 model ProjectsEngineers {
@@ -441,6 +443,8 @@ model ProjectsEngineers {
 
   projects  Projects  @relation(fields: [projectId], references: [id])
   engineers Engineers @relation(fields: [engineerId], references: [id])
+
+  @@unique([engineerId, projectId])
 }
 
 // not related

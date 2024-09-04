@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const ProjectCategory = z.enum(['CIVIL', 'MARIN', 'ENGINEERING']);
+const ProductCategory = z.enum(['CIVIL', 'MARIN', 'ENGINEERING']);
 const EquipmentStatus = z.enum([
   'WORKING',
   'STAND_BY',
@@ -20,7 +20,7 @@ const productSchema = z.object({
   equipmentName: z.string(),
   equipmentImage: z.array(z.string()),
   registrationNumber: z.string(),
-  category: ProjectCategory,
+  category: ProductCategory,
   status: EquipmentStatus,
   ownerName: z.string(),
   ownerAddress: z.string(),
@@ -38,7 +38,7 @@ const updateSchema = z.object({
   equipmentName: z.string().optional(),
   equipmentImage: z.array(z.string()).optional(),
   registrationNumber: z.string().optional(),
-  category: ProjectCategory.optional(),
+  category: ProductCategory.optional(),
   status: EquipmentStatus.optional(),
   ownerName: z.string().optional(),
   ownerAddress: z.string().optional(),
