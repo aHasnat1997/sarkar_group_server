@@ -28,15 +28,95 @@ enum GenderStatus {
 }
 
 enum EmployeeType {
-  NotDef
+  FULL_TIME
+  PART_TIME
+  INTERN
+  TEMPORARY
+  CONTRACTOR
+  FREELANCER
+  CONSULTANT
+  REMOTE
+  ON_SITE
+  SHIFT_WORKER
+  SEASONAL
+  CASUAL
+  VOLUNTEER
+  APPRENTICE
+  TRAINEE
 }
 
 enum Department {
-  NotDef
+  CIVIL
+  MARIN
+  ENGINEERING
 }
 
 enum Designation {
-  NotDef
+  CEO
+  COO
+  CFO
+  CTO
+  CMO
+  CHRO
+  CIO
+  CPO
+  CLO
+  VICE_PRESIDENT_OPERATIONS
+  VICE_PRESIDENT_SALES
+  VICE_PRESIDENT_ENGINEERING
+  VICE_PRESIDENT_MARKETING
+  VICE_PRESIDENT_PRODUCT_MANAGEMENT
+  VICE_PRESIDENT_HUMAN_RESOURCES
+  VICE_PRESIDENT_FINANCE
+  VICE_PRESIDENT_SUPPLY_CHAIN
+  DIRECTOR_OPERATIONS
+  DIRECTOR_ENGINEERING
+  DIRECTOR_SALES
+  DIRECTOR_MARKETING
+  DIRECTOR_PRODUCT_DEVELOPMENT
+  DIRECTOR_FINANCE
+  DIRECTOR_HUMAN_RESOURCES
+  DIRECTOR_CUSTOMER_SERVICE
+  ENGINEERING_MANAGER
+  PRODUCT_MANAGER
+  SALES_MANAGER
+  MARKETING_MANAGER
+  OPERATIONS_MANAGER
+  FINANCE_MANAGER
+  HUMAN_RESOURCES_MANAGER
+  IT_MANAGER
+  QUALITY_ASSURANCE_MANAGER
+  SUPPLY_CHAIN_MANAGER
+  LEAD_SOFTWARE_ENGINEER
+  SENIOR_DATA_SCIENTIST
+  PRINCIPAL_ARCHITECT
+  UX_UI_DESIGN_LEAD
+  DEVOPS_ENGINEER
+  SENIOR_PROJECT_MANAGER
+  LEGAL_COUNSEL
+  COMPLIANCE_OFFICER
+  DATA_PROTECTION_OFFICER
+  TALENT_ACQUISITION_MANAGER
+  CORPORATE_COMMUNICATIONS_MANAGER
+  SOFTWARE_ENGINEER
+  DATA_ANALYST
+  SALES_EXECUTIVE
+  MARKETING_SPECIALIST
+  HR_SPECIALIST
+  ACCOUNTANT
+  CUSTOMER_SUPPORT_REPRESENTATIVE
+  SUPPLY_CHAIN_COORDINATOR
+  ADMINISTRATIVE_ASSISTANT
+  TECHNICAL_WRITER
+  JUNIOR_SOFTWARE_DEVELOPER
+  MARKETING_ASSOCIATE
+  SALES_ASSOCIATE
+  HR_ASSISTANT
+  FINANCIAL_ANALYST
+  CUSTOMER_SUPPORT_AGENT
+  OPERATIONS_ANALYST
+  IT_SUPPORT_TECHNICIAN
+  PROJECT_COORDINATOR
 }
 
 enum ProjectType {
@@ -45,13 +125,25 @@ enum ProjectType {
   ENGINEERING
 }
 
+enum ProjectStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+  DELAYED
+  UNDER_REVIEW
+  APPROVED
+  ARCHIVED
+}
+
 enum ProductType {
   CIVIL
   MARIN
   ENGINEERING
 }
 
-enum ProjectCategory {
+enum ProductCategory {
   CIVIL
   MARIN
   ENGINEERING
@@ -61,22 +153,59 @@ enum EquipmentStatus {
   WORKING
   STAND_BY
   BREAK_DOWN
+  UNDER_MAINTENANCE
+  OUT_OF_SERVICE
+  IN_REPAIR
+  DECOMMISSIONED
+  PENDING_INSPECTION
+  AVAILABLE
+  RESERVED
+  LOST
+  DAMAGED
 }
 
 enum RequisitionStatus {
-  ACCEPTED
-  DECLINED
+  PENDING
+  APPROVED
+  REJECTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+  ON_HOLD
+  UNDER_REVIEW
+  PARTIALLY_FILLED
+  ARCHIVED
 }
 
 enum ApplicationStatus {
   ACCEPTED
-  DECLINED
+  RECEIVED
+  UNDER_REVIEW
+  INTERVIEW_SCHEDULED
+  OFFER_EXTENDED
+  OFFER_ACCEPTED
+  OFFER_DECLINED
+  HIRED
+  REJECTED
+  WITHDRAWN
+  ON_HOLD
+  COMPLETED
 }
 
 enum ApplicationType {
   LEAVE
   EMERGENCY_MONEY
   EQUIPMENT_PROBLEM
+  JOB_APPLICATION
+  INTERNSHIP_APPLICATION
+  VOLUNTEER_APPLICATION
+  SCHOLARSHIP_APPLICATION
+  GRANT_APPLICATION
+  MEMBERSHIP_APPLICATION
+  LOAN_APPLICATION
+  PARTNERSHIP_APPLICATION
+  CUSTOMER_FEEDBACK
+  SERVICE_REQUEST
 }
 
 // Define models
@@ -88,15 +217,16 @@ model Users {
   password     String
   profileImage String?
   role         UserRole
-  isActive     Boolean
-  isDeleted    Boolean
-  createdAt    DateTime
-  updatedAt    DateTime
+  isActive     Boolean? @default(true)
+  isDeleted    Boolean? @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   admins          Admins?
   projectManagers ProjectManagers?
   engineers       Engineers?
   clients         Clients?
+  projectGallery  ProjectGallery[]
 }
 
 model Admins {
@@ -118,15 +248,13 @@ model Admins {
   city              String
   state             String
   zip               Int
-  appointmentLetter String?
-  salarySlips       String[]
-  relivingLetter    String?
-  experienceLetter  String?
-  createdProjects   String[]
-  isActive          Boolean
-  isDeleted         Boolean
-  createdAt         DateTime
-  updatedAt         DateTime
+  appointmentLetter String?       @default("")
+  salarySlips       String[]      @default([])
+  relivingLetter    String?       @default("")
+  experienceLetter  String?       @default("")
+  createdProjects   String[]      @default([])
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   projects Projects[]
   products Products[]
@@ -152,15 +280,13 @@ model ProjectManagers {
   city              String
   state             String
   zip               Int
-  appointmentLetter String?
-  salarySlips       String[]
-  relivingLetter    String?
-  experienceLetter  String?
-  assignProjects    String[]
-  isActive          Boolean
-  isDeleted         Boolean
-  createdAt         DateTime
-  updatedAt         DateTime
+  appointmentLetter String?       @default("")
+  salarySlips       String[]      @default([])
+  relivingLetter    String?       @default("")
+  experienceLetter  String?       @default("")
+  assignProjects    String[]      @default([])
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   projects Projects[]
   user     Users      @relation(fields: [userId], references: [id])
@@ -185,15 +311,13 @@ model Engineers {
   city              String
   state             String
   zip               Int
-  appointmentLetter String?
-  salarySlips       String[]
-  relivingLetter    String?
-  experienceLetter  String?
-  assignProjects    String[]
-  isActive          Boolean
-  isDeleted         Boolean
-  createdAt         DateTime
-  updatedAt         DateTime
+  appointmentLetter String?       @default("")
+  salarySlips       String[]      @default([])
+  relivingLetter    String?       @default("")
+  experienceLetter  String?       @default("")
+  assignProjects    String[]      @default([])
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   projects ProjectsEngineers[]
   user     Users               @relation(fields: [userId], references: [id])
@@ -202,38 +326,38 @@ model Engineers {
 model Clients {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   userId      String   @unique @db.ObjectId
-  productList String[]
+  mobile      String
+  productList String[] @default([])
   street      String
   city        String
   state       String
   zip         Int
-  documents   String[]
-  isActive    Boolean
-  isDeleted   Boolean
-  createdAt   DateTime
-  updatedAt   DateTime
+  documents   String[] @default([])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   projects Projects[]
   user     Users      @relation(fields: [userId], references: [id])
 }
 
 model Projects {
-  id               String      @id @default(auto()) @map("_id") @db.ObjectId
+  id               String        @id @default(auto()) @map("_id") @db.ObjectId
   projectName      String
   department       Department
-  clientId         String      @db.ObjectId
-  createdBy        String      @db.ObjectId
-  projectManagerId String      @db.ObjectId
+  clientId         String        @db.ObjectId
+  createdBy        String        @db.ObjectId
+  projectManagerId String        @db.ObjectId
   startDate        DateTime
   estimatedEndDate DateTime
   projectType      ProjectType
   productType      ProductType
+  status           ProjectStatus
   street           String
   city             String
   state            String
   zip              Int
-  createdAt        DateTime
-  updatedAt        DateTime
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
   projectGallery ProjectGallery[]
   products       ProductsProjects[]
@@ -244,28 +368,28 @@ model Projects {
 }
 
 model ProjectGallery {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  projectId String   @db.ObjectId
-  title     String
-  image     String
-  uploadBy  String
-  comments  String[]
-  createdAt DateTime
-  updatedAt DateTime
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  projectId  String   @db.ObjectId
+  title      String
+  image      String
+  uploaderId String   @db.ObjectId
+  comments   Json[]   @default([])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  project Projects @relation(fields: [projectId], references: [id])
+  project      Projects @relation(fields: [projectId], references: [id])
+  uploaderUser Users    @relation(fields: [uploaderId], references: [id])
 }
 
 model Products {
   id                     String          @id @default(auto()) @map("_id") @db.ObjectId
   equipmentId            String          @unique
-  projectId              String          @db.ObjectId
   equipmentName          String
-  equipmentImage         String
+  equipmentImage         String[]
   registrationNumber     String          @unique
-  category               ProjectCategory
+  category               ProductCategory
   status                 EquipmentStatus
-  productAddBy           String          @db.ObjectId
+  createdAdminId         String          @db.ObjectId
   ownerName              String
   ownerAddress           String
   ownerNumber            String
@@ -274,53 +398,55 @@ model Products {
   charteredPersonAddress String
   brandName              String
   model                  String
-  dimensions             String[]
+  dimensions             String
   manufacturingYear      String
-  crewId                 String[]
-  createdAt              DateTime
-  updatedAt              DateTime
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
 
-  productAddByInfo Admins             @relation(fields: [productAddBy], references: [id])
+  createdAdminInfo Admins             @relation(fields: [createdAdminId], references: [id])
   projects         ProductsProjects[]
   crews            Crews[]
 }
 
 model Crews {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  firstName String
-  lastName  String
-  phone     String   @unique
-  nid       String   @unique
-  productId String   @db.ObjectId
-  isActive  Boolean
-  isDeleted Boolean
-  createdAt DateTime
-  updatedAt DateTime
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName     String
+  profileImage String?
+  phone        String   @unique
+  nid          String   @unique
+  productId    String   @db.ObjectId
+  isActive     Boolean? @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   product Products @relation(fields: [productId], references: [id])
 }
 
 // inter table
 model ProductsProjects {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  productsId String   @db.ObjectId
-  projectsId String   @db.ObjectId
-  createdAt  DateTime
-  updatedAt  DateTime
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId String   @db.ObjectId
+  projectId String   @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  products Products @relation(fields: [productsId], references: [id])
-  projects Projects @relation(fields: [projectsId], references: [id])
+  products Products @relation(fields: [productId], references: [id])
+  projects Projects @relation(fields: [projectId], references: [id])
+
+  @@unique([productId, projectId])
 }
 
 model ProjectsEngineers {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   engineerId String   @db.ObjectId
   projectId  String   @db.ObjectId
-  createdAt  DateTime
-  updatedAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   projects  Projects  @relation(fields: [projectId], references: [id])
   engineers Engineers @relation(fields: [engineerId], references: [id])
+
+  @@unique([engineerId, projectId])
 }
 
 // not related
@@ -335,8 +461,8 @@ model Requisitions {
   declineReason    String
   status           RequisitionStatus
   documents        String[]
-  createdAt        DateTime
-  updatedAt        DateTime
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 }
 
 model Applications {
@@ -354,8 +480,8 @@ model Applications {
   declineReason     String
   status            ApplicationStatus
   documents         String[]
-  createdAt         DateTime
-  updatedAt         DateTime
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 }
 
 model Payments {
@@ -365,8 +491,8 @@ model Payments {
   description String
   amount      Int
   document    String
-  createdAt   DateTime
-  updatedAt   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model DailyReports {
@@ -376,6 +502,6 @@ model DailyReports {
   workingTime     DateTime
   overTime        DateTime
   specialNote     String
-  createdAt       DateTime
-  updatedAt       DateTime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

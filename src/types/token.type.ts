@@ -2,10 +2,11 @@
  * Type representing the payload of a token.
  */
 export type TTokenPayload = {
-  id: string;
-  name: string;
-  profileImage: string;
-  role: string;
-  iat?: number;
-  exp?: number;
+  firstName: string,
+  lastName: string,
+  email: string,
+  profileImage: string,
+  role: string,
+  iat?: number,
+  exp?: number,
 };
