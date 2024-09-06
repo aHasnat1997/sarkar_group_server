@@ -1,6 +1,5 @@
 # Sarkar Group - SMD
 
-## Goal
 The **Sarkar Group - SMD** project aims to develop a monolithic REST system to manage Construction Equipment Products, Project Control Services, and Employee Management. This system utilizes modern web development tools and follows industry best practices to ensure scalability, maintainability, and security.
 
 
