@@ -226,6 +226,7 @@ model Users {
   projectManagers ProjectManagers?
   engineers       Engineers?
   clients         Clients?
+  projectGallery  ProjectGallery[]
 }
 
 model Admins {
@@ -367,16 +368,17 @@ model Projects {
 }
 
 model ProjectGallery {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  projectId String   @db.ObjectId
-  title     String
-  image     String
-  uploadBy  String
-  comments  String[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  projectId  String   @db.ObjectId
+  title      String
+  image      String
+  uploaderId String   @db.ObjectId
+  comments   Json[]   @default([])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  project Projects @relation(fields: [projectId], references: [id])
+  project      Projects @relation(fields: [projectId], references: [id])
+  uploaderUser Users    @relation(fields: [uploaderId], references: [id])
 }
 
 model Products {

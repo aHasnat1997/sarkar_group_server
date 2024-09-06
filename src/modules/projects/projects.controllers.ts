@@ -14,7 +14,7 @@ const create = handelAsyncReq(async (req: Request, res: Response) => {
   const adminId = req.user?.admins?.id;
 
   // Create project information using the ProjectService
-  const result = await ProjectService.cerate(adminId, req.body);
+  const result = await ProjectService.create(adminId, req.body);
 
   // Send a success response with project information
   successResponse(res, {

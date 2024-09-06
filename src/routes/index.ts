@@ -8,6 +8,7 @@ import { ClientRoutes } from "../modules/clients/clients.routes";
 import { ProductRoutes } from "../modules/products/products.routes";
 import { CrewRoutes } from "../modules/crews/crews.routes";
 import { ProjectRoutes } from "../modules/projects/projects.routes";
+import { ProjectGalleryRoutes } from "../modules/projectGalleries/projectGalleries.routes";
 
 /**
  * Express Router instance containing all application routes.
@@ -55,6 +56,10 @@ const moduleRoutes: TModulesRouters[] = [
   {
     path: '/project',
     router: ProjectRoutes
+  },
+  {
+    path: '/project-gallery',
+    router: ProjectGalleryRoutes
   },
   {
     path: '/product',

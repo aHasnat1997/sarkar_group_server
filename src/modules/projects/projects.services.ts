@@ -9,7 +9,7 @@ import { TProjectDetails } from "../../types/project.type";
  * @param payload - The project data to be created.
  * @returns The created project record.
  */
-async function cerate(adminId: string, payload: Projects) {
+async function create(adminId: string, payload: Projects) {
   // Destructure properties that need to be overridden or excluded
   const { createdBy, ...rest } = payload;
 
@@ -106,7 +106,8 @@ async function allInfo(query: Record<string, unknown>) {
       select: {
         products: true
       }
-    }
+    },
+    projectGallery: true
   }
 
   // Build and execute the query dynamically using the query builder methods
@@ -201,7 +202,8 @@ async function singleInfo(projectId: string) {
         select: {
           products: true
         }
-      }
+      },
+      projectGallery: true
     }
   });
 
@@ -419,7 +421,7 @@ async function removeProduct(projectId: string, productId: string) {
 
 // Export the Project Service object containing all the service methods
 export const ProjectService = {
-  cerate,
+  create,
   allInfo,
   singleInfo,
   updateInfo,
